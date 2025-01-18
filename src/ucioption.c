@@ -29,7 +29,7 @@
 
 #include "misc.h"
 #include "numa.h"
-#include "polybook.h"
+//#include "polybook.h"
 #include "search.h"
 #include "settings.h"
 #include "tbprobe.h"
@@ -75,20 +75,20 @@ static void on_large_pages(Option *opt)
   delayedSettings.largePages = opt->value;
 }
 
-static void on_book_file(Option *opt)
-{
-  pb_init(opt->valString);
-}
+// static void on_book_file(Option *opt)
+// {
+//   pb_init(opt->valString);
+// }
 
-static void on_best_book_move(Option *opt)
-{
-  pb_set_best_book_move(opt->value);
-}
+// static void on_best_book_move(Option *opt)
+// {
+//   pb_set_best_book_move(opt->value);
+// }
 
-static void on_book_depth(Option *opt)
-{
-  pb_set_book_depth(opt->value);
-}
+// static void on_book_depth(Option *opt)
+// {
+//   pb_set_book_depth(opt->value);
+// }
 
 #ifdef IS_64BIT
 #ifdef BIG_TT
@@ -121,9 +121,12 @@ static Option optionsMap[] = {
   { "Syzygy50MoveRule", OPT_TYPE_CHECK, 1, 0, 0, NULL, NULL, 0, NULL },
   { "SyzygyProbeLimit", OPT_TYPE_SPIN, 7, 0, 7, NULL, NULL, 0, NULL },
   { "SyzygyUseDTM", OPT_TYPE_CHECK, 1, 0, 0, NULL, NULL, 0, NULL },
-  { "BookFile", OPT_TYPE_STRING, 0, 0, 0, "<empty>", on_book_file, 0, NULL },
-  { "BestBookMove", OPT_TYPE_CHECK, 1, 0, 0, NULL, on_best_book_move, 0, NULL },
-  { "BookDepth", OPT_TYPE_SPIN, 255, 1, 255, NULL, on_book_depth, 0, NULL },
+  // { "BookFile", OPT_TYPE_STRING, 0, 0, 0, "<empty>", on_book_file, 0, NULL },
+  // { "BestBookMove", OPT_TYPE_CHECK, 1, 0, 0, NULL, on_best_book_move, 0, NULL },
+  // { "BookDepth", OPT_TYPE_SPIN, 255, 1, 255, NULL, on_book_depth, 0, NULL },
+  { "BookFile", OPT_TYPE_STRING, 0, 0, 0, "<empty>", NULL, 0, NULL },
+  { "BestBookMove", OPT_TYPE_CHECK, 1, 0, 0, NULL, NULL, 0, NULL },
+  { "BookDepth", OPT_TYPE_SPIN, 255, 1, 255, NULL, NULL, 0, NULL },
   { "LargePages", OPT_TYPE_CHECK, 1, 0, 0, NULL, on_large_pages, 0, NULL },
   { "NUMA", OPT_TYPE_STRING, 0, 0, 0, "all", on_numa, 0, NULL },
   { NULL }
