@@ -65,10 +65,10 @@ static void on_threads(Option *opt)
   delayedSettings.numThreads = opt->value;
 }
 
-static void on_tb_path(Option *opt)
-{
-  TB_init(opt->valString);
-}
+// static void on_tb_path(Option *opt)
+// {
+//   TB_init(opt->valString);
+// }
 
 static void on_large_pages(Option *opt)
 {
@@ -116,7 +116,8 @@ static Option optionsMap[] = {
   { "nodestime", OPT_TYPE_SPIN, 0, 0, 10000, NULL, NULL, 0, NULL },
   { "UCI_AnalyseMode", OPT_TYPE_CHECK, 0, 0, 0, NULL, NULL, 0, NULL },
   { "UCI_Chess960", OPT_TYPE_CHECK, 0, 0, 0, NULL, NULL, 0, NULL },
-  { "SyzygyPath", OPT_TYPE_STRING, 0, 0, 0, "<empty>", on_tb_path, 0, NULL },
+  // { "SyzygyPath", OPT_TYPE_STRING, 0, 0, 0, "<empty>", on_tb_path, 0, NULL },
+  { "SyzygyPath", OPT_TYPE_STRING, 0, 0, 0, "<empty>", NULL, 0, NULL },
   { "SyzygyProbeDepth", OPT_TYPE_SPIN, 1, 1, 100, NULL, NULL, 0, NULL },
   { "Syzygy50MoveRule", OPT_TYPE_CHECK, 1, 0, 0, NULL, NULL, 0, NULL },
   { "SyzygyProbeLimit", OPT_TYPE_SPIN, 7, 0, 7, NULL, NULL, 0, NULL },
