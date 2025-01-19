@@ -84,9 +84,9 @@ static char *Defaults[] = {
   "7k/7P/6K1/8/3B4/8/8/8 b - -",
 
   // Chess 960
-  "setoption name UCI_Chess960 value true",
-  "bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1 moves g2g3 d7d5 d2d4 c8h3 c1g5 e8d6 g5e7 f7f6",
-  "setoption name UCI_Chess960 value false"
+  // "setoption name UCI_Chess960 value true",
+  // "bbqnnrkr/pppppppp/8/8/8/8/PPPPPPPP/BBQNNRKR w KQkq - 0 1 moves g2g3 d7d5 d2d4 c8h3 c1g5 e8d6 g5e7 f7f6",
+  // "setoption name UCI_Chess960 value false"
 };
 
 // benchmark() runs a simple benchmark by letting Stockfish analyze a set

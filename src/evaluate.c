@@ -307,15 +307,15 @@ INLINE Score evaluate_piece(const Pos *pos, EvalInfo *ei, Score *mobility,
       // An important Chess960 pattern: A cornered bishop blocked by a friendly
       // pawn diagonally in front of it is a very serious problem, especially
       // when that pawn is also blocked.
-      if (   Pt == BISHOP
-          && is_chess960()
-          && (s == relative_square(Us, SQ_A1) || s == relative_square(Us, SQ_H1))) {
-        Square d = pawn_push(Us) + (file_of(s) == FILE_A ? EAST : WEST);
-        if (piece_on(s + d) == make_piece(Us, PAWN))
-          score -=  piece_on(s + d + pawn_push(Us))             ? CorneredBishop * 4
-                  : piece_on(s + d + d) == make_piece(Us, PAWN) ? CorneredBishop * 2
-                                                                : CorneredBishop;
-      }
+      // if (   Pt == BISHOP
+      //     && is_chess960()
+      //     && (s == relative_square(Us, SQ_A1) || s == relative_square(Us, SQ_H1))) {
+      //   Square d = pawn_push(Us) + (file_of(s) == FILE_A ? EAST : WEST);
+      //   if (piece_on(s + d) == make_piece(Us, PAWN))
+      //     score -=  piece_on(s + d + pawn_push(Us))             ? CorneredBishop * 4
+      //             : piece_on(s + d + d) == make_piece(Us, PAWN) ? CorneredBishop * 2
+      //                                                           : CorneredBishop;
+      // }
     }
 
     if (Pt == ROOK) {

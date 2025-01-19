@@ -266,13 +266,15 @@ INLINE ExtMove *generate_all(const Pos *pos, ExtMove *list, Bitboard target,
   }
 
   if (Type != CAPTURES && Type != EVASIONS && can_castle_c(Us)) {
-    if (is_chess960()) {
-      list = generate_castling(pos, list, Us, make_castling_right(Us, KING_SIDE), Checks, 1);
-      list = generate_castling(pos, list, Us, make_castling_right(Us, QUEEN_SIDE), Checks, 1);
-    } else {
       list = generate_castling(pos, list, Us, make_castling_right(Us, KING_SIDE), Checks, 0);
       list = generate_castling(pos, list, Us, make_castling_right(Us, QUEEN_SIDE), Checks, 0);
-    }
+    // if (is_chess960()) {
+    //   list = generate_castling(pos, list, Us, make_castling_right(Us, KING_SIDE), Checks, 1);
+    //   list = generate_castling(pos, list, Us, make_castling_right(Us, QUEEN_SIDE), Checks, 1);
+    // } else {
+    //   list = generate_castling(pos, list, Us, make_castling_right(Us, KING_SIDE), Checks, 0);
+    //   list = generate_castling(pos, list, Us, make_castling_right(Us, QUEEN_SIDE), Checks, 0);
+    // }
   }
 
   return list;

@@ -440,18 +440,22 @@ void pos_fen(const Pos *pos, char *str)
   *str++ = ' ';
 
   int cr = pos->st->castlingRights;
+  if (cr & WHITE_OO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(WHITE, KING_SIDE)));
+  if (cr & WHITE_OOO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(WHITE, QUEEN_SIDE)));
+  if (cr & BLACK_OO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(BLACK, KING_SIDE)));
+  if (cr & BLACK_OOO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(BLACK, QUEEN_SIDE)));
 
-  if (!is_chess960()) {
-    if (cr & WHITE_OO) *str++ = 'K';
-    if (cr & WHITE_OOO) *str++ = 'Q';
-    if (cr & BLACK_OO) *str++ = 'k';
-    if (cr & BLACK_OOO) *str++ = 'q';
-  } else {
-    if (cr & WHITE_OO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(WHITE, KING_SIDE)));
-    if (cr & WHITE_OOO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(WHITE, QUEEN_SIDE)));
-    if (cr & BLACK_OO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(BLACK, KING_SIDE)));
-    if (cr & BLACK_OOO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(BLACK, QUEEN_SIDE)));
-  }
+  // if (!is_chess960()) {
+  //   if (cr & WHITE_OO) *str++ = 'K';
+  //   if (cr & WHITE_OOO) *str++ = 'Q';
+  //   if (cr & BLACK_OO) *str++ = 'k';
+  //   if (cr & BLACK_OOO) *str++ = 'q';
+  // } else {
+  //   if (cr & WHITE_OO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(WHITE, KING_SIDE)));
+  //   if (cr & WHITE_OOO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(WHITE, QUEEN_SIDE)));
+  //   if (cr & BLACK_OO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(BLACK, KING_SIDE)));
+  //   if (cr & BLACK_OOO) *str++ = 'A' + file_of(castling_rook_square(make_castling_right(BLACK, QUEEN_SIDE)));
+  // }
   if (!cr)
       *str++ = '-';
 
