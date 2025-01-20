@@ -8,7 +8,7 @@ process = Popen(["./cfish_O1"], stdin=PIPE, stdout=PIPE, text=True)
 process.stdin.write("setoption name Hash value 1\n")
 process.stdin.flush()
 
-def berserk(obs):
+def cfish(obs):
     process.stdin.write(f"position fen {obs.board}\n")
     process.stdin.write("go depth 10 movetime 100\n")
     process.stdin.flush()
