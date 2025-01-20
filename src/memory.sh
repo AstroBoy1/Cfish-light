@@ -15,6 +15,8 @@ cat << EOF > memory.exp
    expect eof
 EOF
 
+# expect memory.exp startpos 1 100
+
 expect memory.exp startpos 20 200
 # Gets to depth 16, 8060kb
 
