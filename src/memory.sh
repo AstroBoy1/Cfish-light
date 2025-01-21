@@ -16,9 +16,15 @@ cat << EOF > memory.exp
 EOF
 
 # expect memory.exp startpos 1 100
+# 5376kb, most of it is probably the hash table
 
 expect memory.exp startpos 20 200
 # Gets to depth 16, 8060kb
+
+# setting tt size to very small, line 64 count = mbSize * 1024 / sizeof(Cluster); 
+# gets to depth 14, 6912kb
+
+# setting enum { MAX_MOVES = 128, MAX_PLY = 16 } in types.h gets to 6780kb;
 
 rm memory.exp
 
