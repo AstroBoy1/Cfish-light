@@ -1,6 +1,6 @@
 #!/bin/bash
 
-make profile-build
+make profile-build numa=no prefetch=no pext=yes
 
 strip -s cfish
 

@@ -41,7 +41,7 @@ PGOBENCH = ./$(EXE) bench 16 1 15
 OBJS = benchmark.o bitbase.o bitboard.o endgame.o evaluate.o main.o \
 	material.o misc.o movegen.o movepick.o pawns.o position.o psqt.o \
 	search.o thread.o timeman.o tt.o uci.o ucioption.o \
-        numa.o settings.o
+        settings.o
 
 ### ==========================================================================
 ### Section 2. High-level Configuration
@@ -289,7 +289,7 @@ endif
 ### 3.3 Optimization
 ifeq ($(optimize),yes)
 
-	CFLAGS += -O1
+	CFLAGS += -O2
 
 	ifeq ($(comp),$(filter $(comp),gcc mingw))
 		ifeq ($(extra),yes)
