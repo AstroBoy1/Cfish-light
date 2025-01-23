@@ -76,7 +76,7 @@ popcnt = yes
 sse = yes
 pext = no
 native = yes
-numa = yes
+numa = no
 lto = no
 extra = no
 

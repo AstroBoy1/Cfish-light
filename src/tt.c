@@ -56,18 +56,23 @@ void tt_free(void)
 
 void tt_allocate(size_t mbSize)
 {
+  print_memory_usage("inside tt_allocate");
 #ifdef BIG_TT
   size_t count = ((size_t)1) << msb((mbSize * 1024 * 1024) / sizeof(Cluster));
 #else
+  printf("sizeof(Cluster) = %zu\n", sizeof(Cluster));
+
   size_t count = mbSize * 1024 * 1024 / sizeof(Cluster);
   // set size very small
   count = mbSize * 1024 / sizeof(Cluster); 
+  printf("count = %zu\n", count);
 #endif
 
   TT.mask = count - 1;
   TT.clusterCount = count;
 
   size_t size = count * sizeof(Cluster);
+  printf("size = %zu\n", size);
 
 #ifdef _WIN32
 
@@ -137,6 +142,8 @@ void tt_allocate(size_t mbSize)
 
   // Clear the TT table to page in the memory immediately. This avoids
   // an initial slow down during the first second or minutes of the search.
+  //print_memory_usage("inside tt_after_allocate");
+
   tt_clear();
   return;
 

@@ -160,13 +160,15 @@ void search_clear(void)
   Time.availableNodes = 0;
 
   tt_clear();
-  for (int i = 0; i < numCmhTables; i++)
-    if (cmhTables[i]) {
-      stats_clear(cmhTables[i]);
-      for (int j = 0; j < 16; j++)
-        for (int k = 0; k < 64; k++)
-          (*cmhTables[i])[0][0][j][k] = CounterMovePruneThreshold - 1;
-    }
+  // print_memory_usage("before numChTables");
+  // for (int i = 0; i < numCmhTables; i++)
+  //   if (cmhTables[i]) {
+  //     stats_clear(cmhTables[i]);
+  //     for (int j = 0; j < 16; j++)
+  //       for (int k = 0; k < 64; k++)
+  //         (*cmhTables[i])[0][0][j][k] = CounterMovePruneThreshold - 1;
+  //   }
+  // print_memory_usage("after numChTables");
 
   for (int idx = 0; idx < Threads.numThreads; idx++) {
     Pos *pos = Threads.pos[idx];

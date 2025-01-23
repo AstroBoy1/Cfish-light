@@ -165,7 +165,11 @@ static void go(Pos *pos, char *str)
 {
   char *token;
 
+  print_memory_usage("test1");
+
   process_delayed_settings();
+
+  print_memory_usage("test");
 
   Limits = (struct LimitsType){ 0 };
   Limits.startTime = now(); // As early as possible!
@@ -204,7 +208,8 @@ static void go(Pos *pos, char *str)
       return;
     }
   }
-
+  // print memory usage before starting search
+  print_memory_usage("before search");
   start_thinking(pos);
 }
 
@@ -286,6 +291,7 @@ void uci_loop(int argc, char **argv)
       while (isblank(*str))
         str++;
     }
+
 
     // The GUI sends 'ponderhit' to tell us to ponder on the same move the
     // opponent has played. In case Signals.stopOnPonderhit is set we are

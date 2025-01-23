@@ -32,6 +32,8 @@
 
 #include "types.h"
 
+void print_memory_usage(const char *step);
+
 void print_engine_info(int to_uci);
 
 // prefetch() preloads the given address in L1/L2 cache. This is
