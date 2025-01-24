@@ -99,17 +99,17 @@ INLINE unsigned popcount16(unsigned u)
 // Bitboards::pretty() returns an ASCII representation of a bitboard suitable
 // to be printed to standard output. Useful for debugging.
 
-void print_pretty(Bitboard b)
-{
-  printf("+---+---+---+---+---+---+---+---+\n");
+// void print_pretty(Bitboard b)
+// {
+//   printf("+---+---+---+---+---+---+---+---+\n");
 
-  for (int r = 7; r >= 0; r--) {
-    for (int f = 0; f <= 7; f++)
-      printf((b & sq_bb(8 * r + f)) ? "| X " : "|   ");
+//   for (int r = 7; r >= 0; r--) {
+//     for (int f = 0; f <= 7; f++)
+//       printf((b & sq_bb(8 * r + f)) ? "| X " : "|   ");
 
-    printf("|\n+---+---+---+---+---+---+---+---+\n");
-  }
-}
+//     printf("|\n+---+---+---+---+---+---+---+---+\n");
+//   }
+// }
 
 
 // bitboards_init() initializes various bitboard tables. It is called at

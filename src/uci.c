@@ -66,34 +66,34 @@ void position(Pos *pos, char *str)
   pos_set(pos, fen, option_value(OPT_CHESS960));
 
   // Parse move list (if any).
-  if (moves) {
-    int ply = 0;
+  // if (moves) {
+  //   int ply = 0;
 
-    for (moves = strtok(moves, " \t"); moves; moves = strtok(NULL, " \t")) {
-      Move m = uci_to_move(pos, moves);
-      if (!m) break;
-      do_move(pos, m, gives_check(pos, pos->st, m));
-      pos->gamePly++;
-      // Roll over if we reach 100 plies.
-      if (++ply == 100) {
-        memcpy(pos->st - 100, pos->st, StateSize);
-        pos->st -= 100;
-        pos_set_check_info(pos);
-        ply -= 100;
-      }
-    }
+  //   for (moves = strtok(moves, " \t"); moves; moves = strtok(NULL, " \t")) {
+  //     Move m = uci_to_move(pos, moves);
+  //     if (!m) break;
+  //     do_move(pos, m, gives_check(pos, pos->st, m));
+  //     pos->gamePly++;
+  //     // Roll over if we reach 100 plies.
+  //     if (++ply == 100) {
+  //       memcpy(pos->st - 100, pos->st, StateSize);
+  //       pos->st -= 100;
+  //       pos_set_check_info(pos);
+  //       ply -= 100;
+  //     }
+  //   }
 
-    // Make sure that is_draw() never tries to look back more than 99 ply.
-    // This is enough, since 100 ply history means draw by 50-move rule.
-    if (pos->st->pliesFromNull > 99)
-      pos->st->pliesFromNull = 99;
+  //   // Make sure that is_draw() never tries to look back more than 99 ply.
+  //   // This is enough, since 100 ply history means draw by 50-move rule.
+  //   if (pos->st->pliesFromNull > 99)
+  //     pos->st->pliesFromNull = 99;
 
-    // Now move some of the game history at the end of the circular buffer
-    // in front of that buffer.
-    int k = (pos->st - (pos->stack + 100)) - max(5, pos->st->pliesFromNull);
-    for (; k < 0; k++)
-      memcpy(pos->stack + 100 + k, pos->stack + 200 + k, StateSize);
-  }
+  //   // Now move some of the game history at the end of the circular buffer
+  //   // in front of that buffer.
+  //   int k = (pos->st - (pos->stack + 100)) - max(5, pos->st->pliesFromNull);
+  //   for (; k < 0; k++)
+  //     memcpy(pos->stack + 100 + k, pos->stack + 200 + k, StateSize);
+  // }
 
   pos->rootKeyFlip = pos->st->key;
   (pos->st-1)->endMoves = pos->moveList;
@@ -165,11 +165,11 @@ static void go(Pos *pos, char *str)
 {
   char *token;
 
-  print_memory_usage("test1");
+  //print_memory_usage("test1");
 
   process_delayed_settings();
 
-  print_memory_usage("test");
+  //print_memory_usage("test");
 
   Limits = (struct LimitsType){ 0 };
   Limits.startTime = now(); // As early as possible!
@@ -209,7 +209,7 @@ static void go(Pos *pos, char *str)
     }
   }
   // print memory usage before starting search
-  print_memory_usage("before search");
+  //print_memory_usage("before search");
   start_thinking(pos);
 }
 
@@ -323,9 +323,9 @@ void uci_loop(int argc, char **argv)
     else if (strcmp(token, "uci") == 0) {
       flockfile(stdout);
       printf("id name ");
-      print_engine_info(1);
+      //print_engine_info(1);
       printf("\n");
-      print_options();
+      //print_options();
       printf("uciok\n");
       fflush(stdout);
       funlockfile(stdout);
@@ -344,7 +344,7 @@ void uci_loop(int argc, char **argv)
 
     // Additional custom non-UCI commands, useful for debugging
     else if (strcmp(token, "bench") == 0)     benchmark(&pos, str);
-    else if (strcmp(token, "d") == 0)         print_pos(&pos);
+    // else if (strcmp(token, "d") == 0)         print_pos(&pos);
     else if (strcmp(token, "perft") == 0) {
       sprintf(str_buf, "%d %d %d current perft", option_value(OPT_HASH),
                     option_value(OPT_THREADS), atoi(str));

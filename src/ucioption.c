@@ -206,29 +206,29 @@ static const char *optTypeStr[] =
 // print_options() prints all options in the format required by the
 // UCI protocol.
 
-void print_options(void)
-{
-  for (Option *opt = optionsMap; opt->name != NULL; opt++) {
-    if (opt->type == OPT_TYPE_DISABLED)
-      continue;
-    printf("option name %s type %s", opt->name, optTypeStr[opt->type]);
-    switch (opt->type) {
-    case OPT_TYPE_CHECK:
-      printf(" default %s", opt->def ? "true" : "false");
-      break;
-    case OPT_TYPE_SPIN:
-      printf(" default %d min %d max %d", opt->def, opt->minVal, opt->maxVal);
-    case OPT_TYPE_BUTTON:
-      break;
-    case OPT_TYPE_STRING:
-    case OPT_TYPE_COMBO:
-      printf(" default %s", opt->defString);
-      break;
-    }
-    printf("\n");
-  }
-  fflush(stdout);
-}
+// void print_options(void)
+// {
+//   for (Option *opt = optionsMap; opt->name != NULL; opt++) {
+//     if (opt->type == OPT_TYPE_DISABLED)
+//       continue;
+//     printf("option name %s type %s", opt->name, optTypeStr[opt->type]);
+//     switch (opt->type) {
+//     case OPT_TYPE_CHECK:
+//       printf(" default %s", opt->def ? "true" : "false");
+//       break;
+//     case OPT_TYPE_SPIN:
+//       printf(" default %d min %d max %d", opt->def, opt->minVal, opt->maxVal);
+//     case OPT_TYPE_BUTTON:
+//       break;
+//     case OPT_TYPE_STRING:
+//     case OPT_TYPE_COMBO:
+//       printf(" default %s", opt->defString);
+//       break;
+//     }
+//     printf("\n");
+//   }
+//   fflush(stdout);
+// }
 
 int option_value(int optIdx)
 {

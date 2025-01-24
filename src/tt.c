@@ -56,7 +56,7 @@ void tt_free(void)
 
 void tt_allocate(size_t mbSize)
 {
-  print_memory_usage("inside tt_allocate");
+  //print_memory_usage("inside tt_allocate");
 #ifdef BIG_TT
   size_t count = ((size_t)1) << msb((mbSize * 1024 * 1024) / sizeof(Cluster));
 #else

@@ -74,7 +74,7 @@ struct Option {
 
 void options_init(void);
 void options_free(void);
-void print_options(void);
+//void print_options(void);
 int option_value(int opt);
 const char *option_string_value(int opt);
 void option_set_value(int opt, int value);

@@ -1,5 +1,6 @@
 #!/bin/bash
-# memory test at depth 6 and movetime of 100ms
+
+#5120 KiB max
 
 echo "memory testing started"
 
@@ -29,7 +30,7 @@ EOF
 # 6144kb
 #expect memory.exp startpos 6 200
 
-expect memory.exp startpos 20 200
+expect memory.exp startpos 10 100
 # Gets to depth 14, 6400kb
 
 # setting tt size to very small, line 64 count = mbSize * 1024 / sizeof(Cluster); 

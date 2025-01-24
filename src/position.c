@@ -112,41 +112,41 @@ INLINE void set_check_info(Pos *pos)
 
 // print_pos() prints an ASCII representation of the position to stdout.
 
-void print_pos(Pos *pos)
-{
-  char fen[128];
-  pos_fen(pos, fen);
+// void print_pos(Pos *pos)
+// {
+//   char fen[128];
+//   pos_fen(pos, fen);
 
-  flockfile(stdout);
-  printf("\n +---+---+---+---+---+---+---+---+\n");
+//   flockfile(stdout);
+//   printf("\n +---+---+---+---+---+---+---+---+\n");
 
-  for (int r = 7; r >= 0; r--) {
-    for (int f = 0; f <= 7; f++)
-      printf(" | %c", PieceToChar[pos->board[8 * r + f]]);
+//   for (int r = 7; r >= 0; r--) {
+//     for (int f = 0; f <= 7; f++)
+//       printf(" | %c", PieceToChar[pos->board[8 * r + f]]);
 
-    printf(" |\n +---+---+---+---+---+---+---+---+\n");
-  }
+//     printf(" |\n +---+---+---+---+---+---+---+---+\n");
+//   }
 
-  printf("\nFen: %s\nKey: %16"PRIX64"\nCheckers: ", fen, pos_key());
+//   printf("\nFen: %s\nKey: %16"PRIX64"\nCheckers: ", fen, pos_key());
 
-  char buf[16];
-  for (Bitboard b = pos_checkers(); b; )
-    printf("%s ", uci_square(buf, pop_lsb(&b)));
+//   char buf[16];
+//   for (Bitboard b = pos_checkers(); b; )
+//     printf("%s ", uci_square(buf, pop_lsb(&b)));
 
-  // if (popcount(pieces()) <= TB_MaxCardinality && !can_castle_cr(ANY_CASTLING)) {
-  //   int s1, s2;
-  //   int wdl = TB_probe_wdl(pos, &s1);
-  //   int dtz = TB_probe_dtz(pos, &s2);
-  //   printf("\nTablebases WDL: %4d (%d)\nTablebases DTZ: %4d (%d)", wdl, s1, dtz, s2);
-  //   if (s1 && wdl != 0) {
-  //     Value dtm = TB_probe_dtm(pos, wdl, &s1);
-  //     printf("\nTablebases DTM: %s (%d)", uci_value(buf, dtm), s1);
-  //   }
-  // }
-  printf("\n");
-  fflush(stdout);
-  funlockfile(stdout);
-}
+//   // if (popcount(pieces()) <= TB_MaxCardinality && !can_castle_cr(ANY_CASTLING)) {
+//   //   int s1, s2;
+//   //   int wdl = TB_probe_wdl(pos, &s1);
+//   //   int dtz = TB_probe_dtz(pos, &s2);
+//   //   printf("\nTablebases WDL: %4d (%d)\nTablebases DTZ: %4d (%d)", wdl, s1, dtz, s2);
+//   //   if (s1 && wdl != 0) {
+//   //     Value dtm = TB_probe_dtm(pos, wdl, &s1);
+//   //     printf("\nTablebases DTM: %s (%d)", uci_value(buf, dtm), s1);
+//   //   }
+//   // }
+//   printf("\n");
+//   fflush(stdout);
+//   funlockfile(stdout);
+// }
 
 INLINE Key H1(Key h)
 {

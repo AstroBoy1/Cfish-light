@@ -32,9 +32,9 @@
 
 #include "types.h"
 
-void print_memory_usage(const char *step);
+//void print_memory_usage(const char *step);
 
-void print_engine_info(int to_uci);
+//void print_engine_info(int to_uci);
 
 // prefetch() preloads the given address in L1/L2 cache. This is
 // a non-blocking function that doesn't stall the CPU waiting for data

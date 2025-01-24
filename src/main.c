@@ -31,60 +31,60 @@
 #include "uci.h"
 #include "tbprobe.h"
 
-#include <sys/resource.h>
-#include <sys/time.h>
+// #include <sys/resource.h>
+// #include <sys/time.h>
 
-void print_memory_usage(const char *step) {
-    struct rusage usage;
-    getrusage(RUSAGE_SELF, &usage);
-    printf("Memory usage after %s: %ld KB\n", step, usage.ru_maxrss);
-}
+// void print_memory_usage(const char *step) {
+//     struct rusage usage;
+//     getrusage(RUSAGE_SELF, &usage);
+//     printf("Memory usage after %s: %ld KB\n", step, usage.ru_maxrss);
+// }
 
 int main(int argc, char **argv) {
-    print_engine_info(0);
+    //print_engine_info(0);
 
-    print_memory_usage("startup");
+    //print_memory_usage("startup");
 
     psqt_init();
-    print_memory_usage("psqt_init");
+    //print_memory_usage("psqt_init");
 
     bitboards_init();
-    print_memory_usage("bitboards_init");
+    //print_memory_usage("bitboards_init");
 
     zob_init();
-    print_memory_usage("zob_init");
+    //print_memory_usage("zob_init");
 
     bitbases_init();
-    print_memory_usage("bitbases_init");
+    //print_memory_usage("bitbases_init");
 
     search_init();
-    print_memory_usage("search_init");
+    //print_memory_usage("search_init");
 
     pawn_init();
-    print_memory_usage("pawn_init");
+    //print_memory_usage("pawn_init");
 
     endgames_init();
-    print_memory_usage("endgames_init");
+    //print_memory_usage("endgames_init");
 
     threads_init();
-    print_memory_usage("threads_init");
+    //print_memory_usage("threads_init");
 
     options_init();
-    print_memory_usage("options_init");
+    //print_memory_usage("options_init");
 
     search_clear();
-    print_memory_usage("search_clear");
+    //print_memory_usage("search_clear");
 
     uci_loop(argc, argv);
 
     threads_exit();
-    print_memory_usage("threads_exit");
+    //print_memory_usage("threads_exit");
 
     options_free();
-    print_memory_usage("options_free");
+    //print_memory_usage("options_free");
 
     tt_free();
-    print_memory_usage("tt_free");
+    //print_memory_usage("tt_free");
 
     return 0;
 }
