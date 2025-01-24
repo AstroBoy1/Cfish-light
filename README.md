@@ -79,26 +79,6 @@ Output the N best lines when searching. Leave at 1 for best performance.
 #### Move Overhead
 Compensation for network and GUI delay (in ms).
 
-#### SyzygyPath
-Path to the folders/directories storing the Syzygy tablebase files. Multiple directories are to be separated by ";" on Windows and by ":" on Unix-based operating systems. Do not use spaces around the ";" or ":".
-
-Example: `C:\tablebases\wdl345;C:\tablebases\wdl6;D:\tablebases\dtz345;D:\tablebases\dtz6`
-
-#### SyzygyProbeDepth
-Minimum remaining search depth for which a position is probed. Increase this value to probe less aggressively.
-
-#### Syzygy50MoveRule
-Disable to let fifty-move rule draws detected by Syzygy tablebase probes count as wins or losses. This is useful for ICCF correspondence games.
-
-#### SyzygyProbeLimit
-Limit Syzygy tablebase probing to positions with at most this many pieces left (including kings and pawns).
-
-#### SyzygyUseDTM
-Use Syzygy DTM tablebases (not yet released).
-
-#### BookFile/BestBookMove/BookDepth
-Control PolyGlot book usage.
-
 #### LargePages
 Control allocation of the hash table as Large Pages (LP). On Windows this option does not appear if the operating system lacks LP support or if LP has not properly been set up.
 
