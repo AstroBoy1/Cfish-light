@@ -54,9 +54,9 @@ INLINE ExtMove *generate_castling(const Pos *pos, ExtMove *list, int us,
   // Because we generate only legal castling moves we need to verify that
   // when moving the castling rook we do not discover some hidden checker.
   // For instance an enemy queen in SQ_A1 when castling rook is in SQ_B1.
-  if (Chess960 && (attacks_bb_rook(kto, pieces() ^ sq_bb(rfrom))
-                                   & pieces_cpp(us ^ 1, ROOK, QUEEN)))
-    return list;
+  // if (Chess960 && (attacks_bb_rook(kto, pieces() ^ sq_bb(rfrom))
+  //                                  & pieces_cpp(us ^ 1, ROOK, QUEEN)))
+  //   return list;
 
 #ifdef PEDANTIC
   Move m = make_castling(kfrom, rfrom);

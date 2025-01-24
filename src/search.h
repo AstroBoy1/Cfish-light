@@ -63,7 +63,7 @@ struct LimitsType {
   int movetime;
   int mate;
   int infinite;
-  int ponder;
+  //int ponder;
   uint64_t nodes;
   TimePoint startTime;
   int numSearchmoves;
@@ -77,7 +77,7 @@ typedef struct LimitsType LimitsType;
 
 struct SignalsType {
   atomic_bool stop; // Search threads should stop searching.
-  atomic_bool stopOnPonderhit; // Main search thread is willing to stop.
+  //atomic_bool stopOnPonderhit; // Main search thread is willing to stop.
   int searching; // UI thread has started the main thread and has not yet
                  // called thread_wait_for_search_finished().
   int sleeping; // Main search thread is sleeping and must be woken up.

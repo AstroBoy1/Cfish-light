@@ -65,35 +65,35 @@ void position(Pos *pos, char *str)
   pos->st = pos->stack + 100; // Start of circular buffer of 100 slots.
   pos_set(pos, fen, option_value(OPT_CHESS960));
 
-  // Parse move list (if any).
-  if (moves) {
-    int ply = 0;
+  // // Parse move list (if any).
+  // if (moves) {
+  //   int ply = 0;
 
-    for (moves = strtok(moves, " \t"); moves; moves = strtok(NULL, " \t")) {
-      Move m = uci_to_move(pos, moves);
-      if (!m) break;
-      do_move(pos, m, gives_check(pos, pos->st, m));
-      pos->gamePly++;
-      // Roll over if we reach 100 plies.
-      if (++ply == 100) {
-        memcpy(pos->st - 100, pos->st, StateSize);
-        pos->st -= 100;
-        pos_set_check_info(pos);
-        ply -= 100;
-      }
-    }
+  //   for (moves = strtok(moves, " \t"); moves; moves = strtok(NULL, " \t")) {
+  //     Move m = uci_to_move(pos, moves);
+  //     if (!m) break;
+  //     do_move(pos, m, gives_check(pos, pos->st, m));
+  //     pos->gamePly++;
+  //     // Roll over if we reach 100 plies.
+  //     if (++ply == 100) {
+  //       memcpy(pos->st - 100, pos->st, StateSize);
+  //       pos->st -= 100;
+  //       pos_set_check_info(pos);
+  //       ply -= 100;
+  //     }
+  //   }
 
-    // Make sure that is_draw() never tries to look back more than 99 ply.
-    // This is enough, since 100 ply history means draw by 50-move rule.
-    if (pos->st->pliesFromNull > 99)
-      pos->st->pliesFromNull = 99;
+  //   // Make sure that is_draw() never tries to look back more than 99 ply.
+  //   // This is enough, since 100 ply history means draw by 50-move rule.
+  //   if (pos->st->pliesFromNull > 99)
+  //     pos->st->pliesFromNull = 99;
 
-    // Now move some of the game history at the end of the circular buffer
-    // in front of that buffer.
-    int k = (pos->st - (pos->stack + 100)) - max(5, pos->st->pliesFromNull);
-    for (; k < 0; k++)
-      memcpy(pos->stack + 100 + k, pos->stack + 200 + k, StateSize);
-  }
+  //   // Now move some of the game history at the end of the circular buffer
+  //   // in front of that buffer.
+  //   int k = (pos->st - (pos->stack + 100)) - max(5, pos->st->pliesFromNull);
+  //   for (; k < 0; k++)
+  //     memcpy(pos->stack + 100 + k, pos->stack + 200 + k, StateSize);
+  // }
 
   pos->rootKeyFlip = pos->st->key;
   (pos->st-1)->endMoves = pos->moveList;
@@ -175,10 +175,10 @@ static void go(Pos *pos, char *str)
   Limits.startTime = now(); // As early as possible!
 
   for (token = strtok(str, " \t"); token; token = strtok(NULL, " \t")) {
-    if (strcmp(token, "searchmoves") == 0)
-      while ((token = strtok(NULL, " \t")))
-        Limits.searchmoves[Limits.numSearchmoves++] = uci_to_move(pos, token);
-    else if (strcmp(token, "wtime") == 0)
+    // if (strcmp(token, "searchmoves") == 0)
+    //   while ((token = strtok(NULL, " \t")))
+    //     Limits.searchmoves[Limits.numSearchmoves++] = uci_to_move(pos, token);
+    if (strcmp(token, "wtime") == 0)
       Limits.time[WHITE] = atoi(strtok(NULL, " \t"));
     else if (strcmp(token, "btime") == 0)
       Limits.time[BLACK] = atoi(strtok(NULL, " \t"));
@@ -196,10 +196,10 @@ static void go(Pos *pos, char *str)
       Limits.movetime = atoi(strtok(NULL, " \t"));
     else if (strcmp(token, "mate") == 0)
       Limits.mate = atoi(strtok(NULL, " \t"));
-    else if (strcmp(token, "infinite") == 0)
-      Limits.infinite = 1;
-    else if (strcmp(token, "ponder") == 0)
-      Limits.ponder = 1;
+    // else if (strcmp(token, "infinite") == 0)
+    //   Limits.infinite = 1;
+    // else if (strcmp(token, "ponder") == 0)
+    //   Limits.ponder = 1;
     else if (strcmp(token, "perft") == 0) {
       char str_buf[64];
       sprintf(str_buf, "%d %d %d current perft", option_value(OPT_HASH),
@@ -308,22 +308,22 @@ void uci_loop(int argc, char **argv)
         UNLOCK(Signals.lock);
       }
     }
-    else if (strcmp(token, "ponderhit") == 0) {
-      Limits.ponder = 0; // Switch to normal search
-      if (Signals.stopOnPonderhit)
-        Signals.stop = 1;
-      LOCK(Signals.lock);
-      if (Signals.sleeping) {
-        Signals.stop = 1;
-        thread_wake_up(threads_main(), THREAD_RESUME);
-        Signals.sleeping = 0;
-      }
-      UNLOCK(Signals.lock);
-    }
+    // else if (strcmp(token, "ponderhit") == 0) {
+    //   Limits.ponder = 0; // Switch to normal search
+    //   if (Signals.stopOnPonderhit)
+    //     Signals.stop = 1;
+    //   LOCK(Signals.lock);
+    //   if (Signals.sleeping) {
+    //     Signals.stop = 1;
+    //     thread_wake_up(threads_main(), THREAD_RESUME);
+    //     Signals.sleeping = 0;
+    //   }
+    //   UNLOCK(Signals.lock);
+    // }
     else if (strcmp(token, "uci") == 0) {
       flockfile(stdout);
       printf("id name ");
-      print_engine_info(1);
+      //print_engine_info(1);
       printf("\n");
       print_options();
       printf("uciok\n");
@@ -433,19 +433,19 @@ char *uci_move(char *str, Move m, int chess960)
 // uci_to_move() converts a string representing a move in coordinate
 // notation (g1f3, a7a8q) to the corresponding legal Move, if any.
 
-Move uci_to_move(const Pos *pos, char *str)
-{
-  if (strlen(str) == 5) // Junior could send promotion piece in uppercase
-    str[4] = tolower(str[4]);
+// Move uci_to_move(const Pos *pos, char *str)
+// {
+//   if (strlen(str) == 5) // Junior could send promotion piece in uppercase
+//     str[4] = tolower(str[4]);
 
-  ExtMove list[MAX_MOVES];
-  ExtMove *last = generate_legal(pos, list);
+//   ExtMove list[MAX_MOVES];
+//   ExtMove *last = generate_legal(pos, list);
 
-  char buf[16];
+//   char buf[16];
 
-  for (ExtMove *m = list; m < last; m++)
-    if (strcmp(str, uci_move(buf, m->move, pos->chess960)) == 0)
-      return m->move;
+//   for (ExtMove *m = list; m < last; m++)
+//     if (strcmp(str, uci_move(buf, m->move, pos->chess960)) == 0)
+//       return m->move;
 
-  return 0;
-}
+//   return 0;
+// }

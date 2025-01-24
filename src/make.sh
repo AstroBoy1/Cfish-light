@@ -13,7 +13,9 @@ tar cf cfish.tar main.py cfish
 zopfli --i100 cfish.tar
 
 echo "Compressed binary size zopfli:"
-ls -lh cfish.tar.gz | awk '{print $5}'
+ls -l cfish.tar.gz | awk '{print $5}'
+
+# 65,536 bytes maximum
 
 # 7z a cfish.tar.7z cfish.tar -mx=9
 

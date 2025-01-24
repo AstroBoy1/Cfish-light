@@ -52,34 +52,34 @@ static char date[] = __DATE__;
 // date when the program was compiled) or "Stockfish <Version>", depending
 // on whether Version is empty.
 
-void print_engine_info(int to_uci)
-{
-  char my_date[64];
+// void print_engine_info(int to_uci)
+// {
+//   char my_date[64];
 
-  printf("Cfish %s", Version);
+//   printf("Cfish %s", Version);
 
-  if (strlen(Version) == 0) {
-    int day, month, year;
+//   if (strlen(Version) == 0) {
+//     int day, month, year;
 
-    strcpy(my_date, date);
-    char *str = strtok(my_date, " "); // month
-    for (month = 1; strncmp(str, &months[3 * month - 3], 3) != 0; month++);
-    str = strtok(NULL, " "); // day
-    day = atoi(str);
-    str = strtok(NULL, " "); // year
-    year = atoi(str);
+//     strcpy(my_date, date);
+//     char *str = strtok(my_date, " "); // month
+//     for (month = 1; strncmp(str, &months[3 * month - 3], 3) != 0; month++);
+//     str = strtok(NULL, " "); // day
+//     day = atoi(str);
+//     str = strtok(NULL, " "); // year
+//     year = atoi(str);
 
-    printf("%02d%02d%02d", day, month, year % 100);
-  }
+//     printf("%02d%02d%02d", day, month, year % 100);
+//   }
 
-  printf("%s%s%s%s\n", Is64Bit ? " 64" : ""
-                     , HasPext ? " BMI2" : (HasPopCnt ? " POPCNT" : "")
-                     , HasNuma ? " NUMA" : ""
-                     , to_uci ? "\nid author T. Romstad, M. Costalba, "
-                                "J. Kiiski, G. Linscott"
-                              : " by Syzygy based on Stockfish");
-  fflush(stdout);
-}
+//   printf("%s%s%s%s\n", Is64Bit ? " 64" : ""
+//                      , HasPext ? " BMI2" : (HasPopCnt ? " POPCNT" : "")
+//                      , HasNuma ? " NUMA" : ""
+//                      , to_uci ? "\nid author T. Romstad, M. Costalba, "
+//                                 "J. Kiiski, G. Linscott"
+//                               : " by Syzygy based on Stockfish");
+//   fflush(stdout);
+// }
 
 // xorshift64star Pseudo-Random Number Generator
 // This class is based on original code written and dedicated

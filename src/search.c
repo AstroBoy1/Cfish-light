@@ -277,7 +277,7 @@ void mainthread_search(void)
   // therefore simply wait here until the GUI sends one of those commands
   // (which also raises Signals.stop).
   LOCK(Signals.lock);
-  if (!Signals.stop && (Limits.ponder || Limits.infinite)) {
+  if (!Signals.stop && (Limits.infinite)) {
     Signals.sleeping = 1;
     UNLOCK(Signals.lock);
     thread_wait(pos, &Signals.stop);
@@ -354,8 +354,8 @@ void mainthread_search(void)
   flockfile(stdout);
   printf("bestmove %s", uci_move(buf, bestThread->rootMoves->move[0].pv[0], is_chess960()));
 
-  if (bestThread->rootMoves->move[0].pvSize > 1 || extract_ponder_from_tt(&bestThread->rootMoves->move[0], pos))
-    printf(" ponder %s", uci_move(buf, bestThread->rootMoves->move[0].pv[1], is_chess960()));
+  // if (bestThread->rootMoves->move[0].pvSize > 1 || extract_ponder_from_tt(&bestThread->rootMoves->move[0], pos))
+  //   printf(" ponder %s", uci_move(buf, bestThread->rootMoves->move[0].pv[1], is_chess960()));
 
   printf("\n");
   fflush(stdout);
@@ -513,7 +513,7 @@ void thread_search(Pos *pos)
           if (pos->threadIdx == 0) {
             failedHighCnt = 0;
             failedLow = true;
-            Signals.stopOnPonderhit = 0;
+            //Signals.stopOnPonderhit = 0;
           }
         } else if (bestValue >= beta) {
           beta = min(bestValue + delta, VALUE_INFINITE);
@@ -561,7 +561,7 @@ skip_search:
 
     // Do we have time for the next iteration? Can we stop searching now?
     if (use_time_management()) {
-      if (!Signals.stop && !Signals.stopOnPonderhit) {
+      if (!Signals.stop) {
         // Stop the search if only one legal move is available, or if all
         // of the available time has been used.
         const int F[] = { failedLow,
@@ -586,10 +586,11 @@ skip_search:
         {
           // If we are allowed to ponder do not stop the search now but
           // keep pondering until the GUI sends "ponderhit" or "stop".
-          if (Limits.ponder)
-            Signals.stopOnPonderhit = 1;
-          else
-            Signals.stop = 1;
+          Signals.stop = 1;
+          // if (Limits.ponder)
+          //   Signals.stopOnPonderhit = 1;
+          // else
+          //   Signals.stop = 1;
         }
       }
     }
@@ -803,8 +804,8 @@ static void check_time(void)
   TimePoint elapsed = time_elapsed();
 
   // An engine may not stop pondering until told so by the GUI
-  if (Limits.ponder)
-    return;
+  // if (Limits.ponder)
+  //   return;
 
   if (   (use_time_management() && elapsed > time_maximum() - 10)
       || (Limits.movetime && elapsed >= Limits.movetime)
@@ -878,32 +879,32 @@ static void uci_print_pv(Pos *pos, Depth depth, Value alpha, Value beta)
 // return to the GUI, otherwise in case of 'ponder on' we have nothing
 // to think on.
 
-static int extract_ponder_from_tt(RootMove *rm, Pos *pos)
-{
-  int ttHit;
+// static int extract_ponder_from_tt(RootMove *rm, Pos *pos)
+// {
+//   int ttHit;
 
-  assert(rm->pvSize == 1);
+//   assert(rm->pvSize == 1);
 
-  if (!rm->pv[0])
-    return 0;
+//   if (!rm->pv[0])
+//     return 0;
 
-  do_move(pos, rm->pv[0], gives_check(pos, pos->st, rm->pv[0]));
-  TTEntry *tte = tt_probe(pos_key(), &ttHit);
+//   do_move(pos, rm->pv[0], gives_check(pos, pos->st, rm->pv[0]));
+//   TTEntry *tte = tt_probe(pos_key(), &ttHit);
 
-  if (ttHit) {
-    Move m = tte_move(tte); // Local copy to be SMP safe
-    ExtMove list[MAX_MOVES];
-    ExtMove *last = generate_legal(pos, list);
-    for (ExtMove *p = list; p < last; p++)
-      if (p->move == m) {
-        rm->pv[rm->pvSize++] = m;
-        break;
-      }
-  }
+//   if (ttHit) {
+//     Move m = tte_move(tte); // Local copy to be SMP safe
+//     ExtMove list[MAX_MOVES];
+//     ExtMove *last = generate_legal(pos, list);
+//     for (ExtMove *p = list; p < last; p++)
+//       if (p->move == m) {
+//         rm->pv[rm->pvSize++] = m;
+//         break;
+//       }
+//   }
 
-  undo_move(pos, rm->pv[0]);
-  return rm->pvSize > 1;
-}
+//   undo_move(pos, rm->pv[0]);
+//   return rm->pvSize > 1;
+// }
 
 // static void TB_rank_root_moves(Pos *pos, RootMoves *rm)
 // {
@@ -962,7 +963,8 @@ void start_thinking(Pos *root)
   if (Signals.searching)
     thread_wait_until_sleeping(threads_main());
 
-  Signals.stopOnPonderhit = Signals.stop = 0;
+  //Signals.stopOnPonderhit = Signals.stop = 0;
+  Signals.stop = 0;
 
   // Generate all legal moves.
   ExtMove list[MAX_MOVES];
