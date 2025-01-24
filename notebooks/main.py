@@ -1,7 +1,7 @@
 from subprocess import Popen, PIPE
 
 # TODO: Comment the below line for submission, and uncomment the next line
-process = Popen(["./cfish_nocounter"], stdin=PIPE, stdout=PIPE, text=True)
+process = Popen(["./cfish"], stdin=PIPE, stdout=PIPE, text=True)
 #process = Popen(["/kaggle_simulations/agent/cfish_O1"], stdin=PIPE, stdout=PIPE, text=True)
 
 def cfish(obs):
