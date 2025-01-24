@@ -165,11 +165,11 @@ static void go(Pos *pos, char *str)
 {
   char *token;
 
-  print_memory_usage("test1");
+  //print_memory_usage("test1");
 
   process_delayed_settings();
 
-  print_memory_usage("test");
+  //print_memory_usage("test");
 
   Limits = (struct LimitsType){ 0 };
   Limits.startTime = now(); // As early as possible!
@@ -209,7 +209,7 @@ static void go(Pos *pos, char *str)
     }
   }
   // print memory usage before starting search
-  print_memory_usage("before search");
+  //print_memory_usage("before search");
   start_thinking(pos);
 }
 

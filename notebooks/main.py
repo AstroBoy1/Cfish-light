@@ -1,12 +1,8 @@
 from subprocess import Popen, PIPE
 
 # TODO: Comment the below line for submission, and uncomment the next line
-process = Popen(["./cfish_O1"], stdin=PIPE, stdout=PIPE, text=True)
+process = Popen(["./cfish_nocounter"], stdin=PIPE, stdout=PIPE, text=True)
 #process = Popen(["/kaggle_simulations/agent/cfish_O1"], stdin=PIPE, stdout=PIPE, text=True)
-
-# Set the hash size
-process.stdin.write("setoption name Hash value 1\n")
-process.stdin.flush()
 
 def cfish(obs):
     process.stdin.write(f"position fen {obs.board}\n")

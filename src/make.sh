@@ -1,11 +1,21 @@
 #!/bin/bash
 
 make profile-build numa=no prefetch=no pext=yes
+echo "binary size:"
+ls -lh cfish | awk '{print $5}'
 
 strip -s cfish
+echo "binary size after strip:"
+ls -lh cfish | awk '{print $5}'
 
 tar cf cfish.tar main.py cfish
-7z a cfish.tar.7z cfish.tar -mx=9
+
+zopfli --i100 cfish.tar
 
 echo "Compressed binary size zopfli:"
-ls -lh cfish.tar.7z | awk '{print $5}'
+ls -lh cfish.tar.gz | awk '{print $5}'
+
+# 7z a cfish.tar.7z cfish.tar -mx=9
+
+# echo "Compressed binary size zopfli:"
+# ls -lh cfish.tar.7z | awk '{print $5}'
