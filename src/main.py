@@ -5,11 +5,15 @@ from subprocess import Popen, PIPE
 process = Popen(["/kaggle_simulations/agent/cfish"], stdin=PIPE, stdout=PIPE, text=True)
 move = 0
 
+# 1000 ms in 1 second
+# 10,000 ms in 10 seconds
+
+# 
 def cfish(obs):
     move += 1
     process.stdin.write(f"position fen {obs.board}\n")
-    if move <= 50:
-        process.stdin.write("go movetime 200\n")
+    if move <= 30:
+        process.stdin.write("go movetime 300\n")
     else:
         process.stdin.write("go movetime 100\n")
     process.stdin.flush()

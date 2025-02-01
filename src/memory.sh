@@ -30,7 +30,7 @@ EOF
 # 6144kb
 #expect memory.exp startpos 6 200
 
-expect memory.exp startpos 20 200
+expect memory.exp startpos 20 300
 # Gets to depth 14, 6400kb
 
 #expect memory.exp startpos 20 200
