@@ -66,34 +66,34 @@ void position(Pos *pos, char *str)
   pos_set(pos, fen, option_value(OPT_CHESS960));
 
   // Parse move list (if any).
-  // if (moves) {
-  //   int ply = 0;
+  if (moves) {
+    int ply = 0;
 
-  //   for (moves = strtok(moves, " \t"); moves; moves = strtok(NULL, " \t")) {
-  //     Move m = uci_to_move(pos, moves);
-  //     if (!m) break;
-  //     do_move(pos, m, gives_check(pos, pos->st, m));
-  //     pos->gamePly++;
-  //     // Roll over if we reach 100 plies.
-  //     if (++ply == 100) {
-  //       memcpy(pos->st - 100, pos->st, StateSize);
-  //       pos->st -= 100;
-  //       pos_set_check_info(pos);
-  //       ply -= 100;
-  //     }
-  //   }
+    for (moves = strtok(moves, " \t"); moves; moves = strtok(NULL, " \t")) {
+      Move m = uci_to_move(pos, moves);
+      if (!m) break;
+      do_move(pos, m, gives_check(pos, pos->st, m));
+      pos->gamePly++;
+      // Roll over if we reach 100 plies.
+      if (++ply == 100) {
+        memcpy(pos->st - 100, pos->st, StateSize);
+        pos->st -= 100;
+        pos_set_check_info(pos);
+        ply -= 100;
+      }
+    }
 
-  //   // Make sure that is_draw() never tries to look back more than 99 ply.
-  //   // This is enough, since 100 ply history means draw by 50-move rule.
-  //   if (pos->st->pliesFromNull > 99)
-  //     pos->st->pliesFromNull = 99;
+    // Make sure that is_draw() never tries to look back more than 99 ply.
+    // This is enough, since 100 ply history means draw by 50-move rule.
+    if (pos->st->pliesFromNull > 99)
+      pos->st->pliesFromNull = 99;
 
-  //   // Now move some of the game history at the end of the circular buffer
-  //   // in front of that buffer.
-  //   int k = (pos->st - (pos->stack + 100)) - max(5, pos->st->pliesFromNull);
-  //   for (; k < 0; k++)
-  //     memcpy(pos->stack + 100 + k, pos->stack + 200 + k, StateSize);
-  // }
+    // Now move some of the game history at the end of the circular buffer
+    // in front of that buffer.
+    int k = (pos->st - (pos->stack + 100)) - max(5, pos->st->pliesFromNull);
+    for (; k < 0; k++)
+      memcpy(pos->stack + 100 + k, pos->stack + 200 + k, StateSize);
+  }
 
   pos->rootKeyFlip = pos->st->key;
   (pos->st-1)->endMoves = pos->moveList;

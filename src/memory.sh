@@ -30,13 +30,15 @@ EOF
 # 6144kb
 #expect memory.exp startpos 6 200
 
-expect memory.exp startpos 20 300
-# Gets to depth 14, 6400kb
+expect memory.exp startpos 20 200
 
-#expect memory.exp startpos 20 200
+#5632 block_size=2
+#5632 block_size=1
+#5248 for #define PAWN_ENTRIES 4096
+#5120 for #define PAWN_ENTRIES 2048
+#4992 for #define PAWN_ENTRIES 1024
 
-# setting tt size to very small, line 64 count = mbSize * 1024 / sizeof(Cluster); 
-# gets to depth 14, 6912kb
+#6556 size_t count = mbSize * 1024 * 1024 / sizeof(Cluster);
 
 # setting enum { MAX_MOVES = 128, MAX_PLY = 16 } in types.h gets to 6780kb;
 

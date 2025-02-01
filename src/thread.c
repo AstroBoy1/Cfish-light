@@ -60,7 +60,7 @@ static THREAD_FUNC thread_init(void *arg)
   if (node >= numCmhTables) {
     int old = numCmhTables;
     numCmhTables = node + 16;
-    numCmhTables = node + 1;
+    //numCmhTables = node + 1;
     cmhTables = realloc(cmhTables,
         numCmhTables * sizeof(CounterMoveHistoryStat *));
     while (old < numCmhTables)

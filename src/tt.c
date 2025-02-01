@@ -65,6 +65,7 @@ void tt_allocate(size_t mbSize)
   size_t count = mbSize * 1024 * 1024 / sizeof(Cluster);
   // set size very small
   count = mbSize * 1024 / sizeof(Cluster); 
+  // count = 64;
   printf("count = %zu\n", count);
 #endif
 
@@ -174,9 +175,11 @@ void tt_clear_worker(int idx)
   // Find out which part of the TT this thread should clear.
   // To each thread we assign a number of 2MB blocks.
 
+  int block_size = 2;
+
   size_t total = (TT.mask + 1) * sizeof(Cluster);
   size_t slice = (total + Threads.numThreads - 1) / Threads.numThreads;
-  size_t blocks = (slice + (2 * 1024 * 1024) - 1) / (2 * 1024 * 1024);
+  size_t blocks = (slice + (block_size * 1024 * 1024) - 1) / (block_size * 1024 * 1024);
   size_t begin = idx * blocks * (2 * 1024 * 1024);
   size_t end = begin + blocks * (2 * 1024 * 1024);
   begin = min(begin, total);
