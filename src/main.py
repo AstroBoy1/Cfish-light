@@ -12,8 +12,8 @@ move = 0
 def cfish(obs):
     move += 1
     process.stdin.write(f"position fen {obs.board}\n")
-    if move <= 30:
-        process.stdin.write("go movetime 300\n")
+    if move <= 45:
+        process.stdin.write("go movetime 200\n")
     else:
         process.stdin.write("go movetime 100\n")
     process.stdin.flush()
