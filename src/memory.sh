@@ -30,8 +30,10 @@ EOF
 # 6144kb
 #expect memory.exp startpos 6 200
 
-expect memory.exp startpos 10 100
+expect memory.exp startpos 20 200
 # Gets to depth 14, 6400kb
+
+#expect memory.exp startpos 20 200
 
 # setting tt size to very small, line 64 count = mbSize * 1024 / sizeof(Cluster); 
 # gets to depth 14, 6912kb

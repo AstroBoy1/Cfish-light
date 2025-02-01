@@ -1,6 +1,8 @@
 #!/bin/bash
 
 make profile-build numa=no prefetch=no pext=yes
+# the last two options reduce file size a just enough to get to 64,920 bytes
+
 echo "binary size:"
 ls -lh cfish | awk '{print $5}'
 
