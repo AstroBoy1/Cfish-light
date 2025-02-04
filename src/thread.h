@@ -59,8 +59,9 @@ void thread_wait(Pos *pos, atomic_bool *b);
 // MainThread struct seems to exist mostly for easy move.
 
 struct MainThread {
-  double bestMoveChanges, previousTimeReduction;
+  double previousTimeReduction;
   Value previousScore;
+  Value iterValue[4];
 };
 
 typedef struct MainThread MainThread;
@@ -84,6 +85,7 @@ struct ThreadPool {
 #else
   HANDLE event;
 #endif
+  atomic_bool increaseDepth;
 };
 
 typedef struct ThreadPool ThreadPool;

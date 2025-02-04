@@ -27,9 +27,6 @@
 
 // Number of entries in the pawn hash table. Must be a power of 2.
 //#define PAWN_ENTRIES 16384
-//#define PAWN_ENTRIES 8192
-//#define PAWN_ENTRIES 4096
-//#define PAWN_ENTRIES 2048
 #define PAWN_ENTRIES 1024
 
 // PawnEntry contains various information about a pawn structure. A lookup
@@ -46,9 +43,8 @@ struct PawnEntry {
   uint8_t kingSquares[2];
   uint8_t castlingRights[2];
   uint8_t semiopenFiles[2];
-  uint8_t weakUnopposed[2];
   uint8_t pawnsOnSquares[2][2]; // [color][light/dark squares]
-  uint8_t asymmetry;
+  uint8_t passedCount;
   uint8_t openFiles;
 };
 
@@ -65,7 +61,7 @@ void pawn_entry_fill(const Pos *pos, PawnEntry *e, Key k);
 
 INLINE PawnEntry *pawn_probe(const Pos *pos)
 {
-  Key key = pos_pawn_key();
+  Key key = pawn_key();
   PawnEntry *e = &pos->pawnTable[key & (PAWN_ENTRIES - 1)];
 
   if (unlikely(e->key != key))

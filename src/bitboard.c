@@ -26,6 +26,7 @@ uint8_t PopCnt16[1 << 16];
 #endif
 uint8_t SquareDistance[64][64];
 
+#ifndef AVX2_BITBOARD
 static int RookDirs[] = { NORTH, EAST, SOUTH, WEST };
 static int BishopDirs[] = { NORTH_EAST, SOUTH_EAST, SOUTH_WEST, NORTH_WEST };
 
@@ -44,6 +45,7 @@ static Bitboard sliding_attack(int dirs[], Square sq, Bitboard occupied)
 
   return attack;
 }
+#endif
 
 #if defined(MAGIC_FANCY)
 #include "magic-fancy.c"
@@ -55,18 +57,19 @@ static Bitboard sliding_attack(int dirs[], Square sq, Bitboard occupied)
 #include "bmi2-fancy.c"
 #elif defined(BMI2_PLAIN)
 #include "bmi2-plain.c"
+#elif defined(AVX2_BITBOARD)
+#include "avx2-bitboard.c"
 #endif
 
 Bitboard SquareBB[64];
 Bitboard FileBB[8];
 Bitboard RankBB[8];
-Bitboard AdjacentFilesBB[8];
 Bitboard ForwardRanksBB[2][8];
 Bitboard BetweenBB[64][64];
 Bitboard LineBB[64][64];
 Bitboard DistanceRingBB[64][8];
 Bitboard ForwardFileBB[2][64];
-Bitboard PassedPawnMask[2][64];
+Bitboard PassedPawnSpan[2][64];
 Bitboard PawnAttackSpan[2][64];
 Bitboard PseudoAttacks[8][64];
 Bitboard PawnAttacks[2][64];
@@ -131,17 +134,14 @@ void bitboards_init(void)
   for (int r = 0; r < 8; r++)
     RankBB[r] = r > RANK_1 ? RankBB[r - 1] << 8 : Rank1BB;
 
-  for (int f = 0; f < 8; f++)
-    AdjacentFilesBB[f] = (f > FILE_A ? FileBB[f - 1] : 0) | (f < FILE_H ? FileBB[f + 1] : 0);
-
   for (int r = 0; r < 7; r++)
     ForwardRanksBB[WHITE][r] = ~(ForwardRanksBB[BLACK][r + 1] = ForwardRanksBB[BLACK][r] | RankBB[r]);
 
   for (int c = 0; c < 2; c++)
     for (Square s = 0; s < 64; s++) {
       ForwardFileBB[c][s]  = ForwardRanksBB[c][rank_of(s)] & FileBB[file_of(s)];
-      PawnAttackSpan[c][s] = ForwardRanksBB[c][rank_of(s)] & AdjacentFilesBB[file_of(s)];
-      PassedPawnMask[c][s] = ForwardFileBB[c][s] | PawnAttackSpan[c][s];
+      PawnAttackSpan[c][s] = ForwardRanksBB[c][rank_of(s)] & adjacent_files_bb(file_of(s));
+      PassedPawnSpan[c][s] = ForwardFileBB[c][s] | PawnAttackSpan[c][s];
     }
 
   for (Square s1 = 0; s1 < 64; s1++)

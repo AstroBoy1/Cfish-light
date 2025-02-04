@@ -116,9 +116,7 @@
 typedef uint64_t Key;
 typedef uint64_t Bitboard;
 
-// enum { MAX_MOVES = 256, MAX_PLY = 128 };
-// lower MAX_MOVES to 128 to save memory
-enum { MAX_MOVES = 128, MAX_PLY = 16 };
+enum { MAX_MOVES = 256, MAX_PLY = 16 };
 
 // A move needs 16 bits to be stored
 //
@@ -177,11 +175,11 @@ enum {
 };
 
 enum {
-  PawnValueMg   = 136,   PawnValueEg   = 208,
-  KnightValueMg = 782,   KnightValueEg = 865,
-  BishopValueMg = 830,   BishopValueEg = 918,
-  RookValueMg   = 1289,  RookValueEg   = 1378,
-  QueenValueMg  = 2529,  QueenValueEg  = 2687,
+  PawnValueMg   = 128,   PawnValueEg   = 213,
+  KnightValueMg = 781,   KnightValueEg = 854,
+  BishopValueMg = 825,   BishopValueEg = 915,
+  RookValueMg   = 1276,  RookValueEg   = 1380,
+  QueenValueMg  = 2538,  QueenValueEg  = 2682,
 
   MidgameLimit  = 15258, EndgameLimit = 3915
 };
@@ -194,13 +192,10 @@ enum {
 };
 
 enum {
-  ONE_PLY = 1,
-  DEPTH_ZERO          =  0 * ONE_PLY,
-  DEPTH_QS_CHECKS     =  0 * ONE_PLY,
-  DEPTH_QS_NO_CHECKS  = -1 * ONE_PLY,
-  DEPTH_QS_RECAPTURES = -5 * ONE_PLY,
-  DEPTH_NONE = -6 * ONE_PLY,
-  DEPTH_MAX = MAX_PLY * ONE_PLY,
+  DEPTH_QS_CHECKS     =  0,
+  DEPTH_QS_NO_CHECKS  = -1,
+  DEPTH_QS_RECAPTURES = -5,
+  DEPTH_NONE = -6,
 };
 
 enum {
@@ -290,6 +285,7 @@ extern uint32_t NonPawnPieceValue[16];
 #define type_of_m(m) ((m) >> 14)
 #define promotion_type(m) ((((m)>>12) & 3) + KNIGHT)
 #define make_move(from,to) ((Move)((to) | ((from) << 6)))
+#define reverse_move(m) (make_move(to_sq(m), from_sq(m)))
 #define make_promotion(from,to,pt) ((Move)((to) | ((from)<<6) | (PROMOTION<<14) | (((pt)-KNIGHT)<<12)))
 #define make_enpassant(from,to) ((Move)((to) | ((from)<<6) | (ENPASSANT<<14)))
 #define make_castling(from,to) ((Move)((to) | ((from)<<6) | (CASTLING<<14)))
@@ -297,7 +293,7 @@ extern uint32_t NonPawnPieceValue[16];
 
 INLINE int opposite_colors(Square s1, Square s2)
 {
-  int s = s1 ^ s2;
+  Square s = s1 ^ s2;
   return ((s >> 3) ^ s) & 1;
 }
 
@@ -310,7 +306,7 @@ typedef struct MaterialEntry MaterialEntry;
 
 typedef Move CounterMoveStat[16][64];
 typedef int16_t PieceToHistory[16][64];
-typedef PieceToHistory CounterMoveHistoryStat[16][64];
+typedef PieceToHistory CounterMoveHistoryStat[2][2][16][64];
 typedef int16_t ButterflyHistory[2][4096];
 typedef int16_t CapturePieceToHistory[16][64][8];
 
@@ -331,6 +327,7 @@ extern struct PSQT psqt;
 #define max(a,b) ((a) > (b) ? (a) : (b))
 #define min(a,b) ((a) < (b) ? (a) : (b))
 #endif
+#define clamp(a,b,c) ((a) < (b) ? (b) : (a) > (c) ? (c) : (a))
 
 #ifdef NDEBUG
 #define assume(x) do { if (!(x)) __builtin_unreachable(); } while (0)

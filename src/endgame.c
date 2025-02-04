@@ -41,14 +41,14 @@ static const int PushToEdges[64] = {
 // Table used to drive the king towards a corner square of the
 // right color in KBN vs K endgames.
 static const int PushToCorners[64] = {
-  200, 190, 180, 170, 160, 150, 140, 130,
-  190, 180, 170, 160, 150, 140, 130, 140,
-  180, 170, 155, 140, 140, 125, 140, 150,
-  170, 160, 140, 120, 110, 140, 150, 160,
-  160, 150, 140, 110, 120, 140, 160, 170,
-  150, 140, 125, 140, 140, 155, 170, 180,
-  140, 130, 140, 150, 160, 170, 180, 190,
-  130, 140, 150, 160, 170, 180, 190, 200
+  6400, 6080, 5760, 5440, 5120, 4800, 4480, 4160,
+  6080, 5760, 5440, 5120, 4800, 4480, 4160, 4480,
+  5760, 5440, 4960, 4480, 4480, 4000, 4480, 4800,
+  5440, 5120, 4480, 3840, 3520, 4480, 4800, 5120,
+  5120, 4800, 4480, 3520, 3840, 4480, 5120, 5440,
+  4800, 4480, 4000, 4480, 4480, 4960, 5440, 5760,
+  4480, 4160, 4480, 4800, 5120, 5440, 5760, 6080,
+  4160, 4480, 4800, 5120, 5440, 5760, 6080, 6400
 };
 
 // Tables used to drive a piece towards or away from another piece
@@ -61,7 +61,7 @@ static const int KRPPKRPScaleFactors[8] = { 0, 9, 10, 14, 21, 44, 0, 0 };
 #ifndef NDEBUG
 static bool verify_material(const Pos *pos, int c, Value npm, int pawnsCnt)
 {
-  return   pos_non_pawn_material(c) == npm
+  return   non_pawn_material(c) == npm
         && piece_count(c, PAWN) == pawnsCnt;
 }
 #endif
@@ -99,47 +99,48 @@ static Key calc_key(const char *code, int c)
   return key;
 }
 
-static EgFunc EvaluateKPK, EvaluateKNNK, EvaluateKBNK, EvaluateKRKP,
-              EvaluateKRKB, EvaluateKRKN, EvaluateKQKP, EvaluateKQKR,
-              EvaluateKXK;
+static EgFunc EvaluateKPK, EvaluateKNNK, EvaluateKNNKP, EvaluateKBNK,
+              EvaluateKRKP, EvaluateKRKB, EvaluateKRKN, EvaluateKQKP,
+              EvaluateKQKR, EvaluateKXK;
 
 static EgFunc ScaleKNPK, ScaleKNPKB, ScaleKRPKR, ScaleKRPKB,
               ScaleKBPKB, ScaleKBPKN, ScaleKBPPKB, ScaleKRPPKRP,
               ScaleKBPsK, ScaleKQKRPs, ScaleKPKP, ScaleKPsK;
 
-EgFunc *endgame_funcs[22] = {
+EgFunc *endgame_funcs[NUM_EVAL + NUM_SCALING + 6] = {
   NULL,
-// Entries 1-9 are evaluation functions.
+// Entries 1-10 are evaluation functions.
   &EvaluateKPK,    // 1
   &EvaluateKNNK,   // 2
-  &EvaluateKBNK,   // 3
-  &EvaluateKRKP,   // 4
-  &EvaluateKRKB,   // 5
-  &EvaluateKRKN,   // 6
-  &EvaluateKQKP,   // 7
-  &EvaluateKQKR,   // 8
-  &EvaluateKXK,    // 9
-// Entries 10-21 are scaling functions.
-  &ScaleKNPK,      // 10
-  &ScaleKNPKB,     // 11
-  &ScaleKRPKR,     // 12
-  &ScaleKRPKB,     // 13
-  &ScaleKBPKB,     // 14
-  &ScaleKBPKN,     // 15
-  &ScaleKBPPKB,    // 16
-  &ScaleKRPPKRP,   // 17
-  &ScaleKBPsK,     // 18
-  &ScaleKQKRPs,    // 19
-  &ScaleKPsK,      // 20
-  &ScaleKPKP       // 21
+  &EvaluateKNNKP,  // 3
+  &EvaluateKBNK,   // 4
+  &EvaluateKRKP,   // 5
+  &EvaluateKRKB,   // 6
+  &EvaluateKRKN,   // 7
+  &EvaluateKQKP,   // 8
+  &EvaluateKQKR,   // 9
+  &EvaluateKXK,    // 10
+// Entries 11-22 are scaling functions.
+  &ScaleKNPK,      // 11
+  &ScaleKNPKB,     // 12
+  &ScaleKRPKR,     // 13
+  &ScaleKRPKB,     // 14
+  &ScaleKBPKB,     // 15
+  &ScaleKBPKN,     // 16
+  &ScaleKBPPKB,    // 17
+  &ScaleKRPPKRP,   // 18
+  &ScaleKBPsK,     // 19
+  &ScaleKQKRPs,    // 20
+  &ScaleKPsK,      // 21
+  &ScaleKPKP       // 22
 };
 
-Key endgame_keys[16][2];
+Key endgame_keys[NUM_EVAL + NUM_SCALING][2];
 
-static const char *endgame_codes[16] = {
-  // Codes for evaluation functions 1-8.
-  "KPk", "KNNk", "KBNk", "KRkp", "KRkb", "KRkn", "KQkp", "KQkr",
-  // Codes for scaling functions 10-17.
+static const char *endgame_codes[NUM_EVAL + NUM_SCALING] = {
+  // Codes for evaluation functions 1-9.
+  "KPk", "KNNk", "KNNkp", "KBNk", "KRkp", "KRkb", "KRkn", "KQkp", "KQkr",
+  // Codes for scaling functions 11-18.
   "KNPk", "KNPkb", "KRPkr", "KRPkb", "KBPkb", "KBPkn", "KBPPkb", "KRPPkrp"
 };
 
@@ -161,10 +162,10 @@ static Value EvaluateKXK(const Pos *pos, unsigned strongSide)
   unsigned weakSide = strongSide ^ 1;
 
   assert(verify_material(pos, weakSide, VALUE_ZERO, 0));
-  assert(!pos_checkers()); // Eval is never called when in check
+  assert(!checkers()); // Eval is never called when in check
 
   // Stalemate detection with lone king
-  if (pos_stm() == weakSide) {
+  if (stm() == weakSide) {
     ExtMove list[MAX_MOVES];
     if (generate_legal(pos, list) == list)
       return VALUE_DRAW;
@@ -173,7 +174,7 @@ static Value EvaluateKXK(const Pos *pos, unsigned strongSide)
   Square winnerKSq = square_of(strongSide, KING);
   Square loserKSq = square_of(weakSide, KING);
 
-  Value result =  pos_non_pawn_material(strongSide)
+  Value result =  non_pawn_material_c(strongSide)
                 + piece_count(strongSide, PAWN) * PawnValueEg
                 + PushToEdges[loserKSq]
                 + PushClose[distance(winnerKSq, loserKSq)];
@@ -185,7 +186,7 @@ static Value EvaluateKXK(const Pos *pos, unsigned strongSide)
           && (pieces_p(BISHOP) & bb & LightSquares)))
     result = min(result + VALUE_KNOWN_WIN, VALUE_MATE_IN_MAX_PLY - 1);
 
-  return strongSide == pos_stm() ? result : -result;
+  return strongSide == stm() ? result : -result;
 }
 
 
@@ -214,7 +215,7 @@ static Value EvaluateKBNK(const Pos *pos, unsigned strongSide)
                 + PushClose[distance(winnerKSq, loserKSq)]
                 + PushToCorners[loserKSq];
 
-  return strongSide == pos_stm() ? result : -result;
+  return strongSide == stm() ? result : -result;
 }
 
 
@@ -231,14 +232,14 @@ static Value EvaluateKPK(const Pos *pos, unsigned strongSide)
   Square bksq = normalize(pos, strongSide, square_of(weakSide, KING));
   Square psq  = normalize(pos, strongSide, lsb(pieces_p(PAWN)));
 
-  unsigned us = strongSide == pos_stm() ? WHITE : BLACK;
+  unsigned us = strongSide == stm() ? WHITE : BLACK;
 
   if (!bitbases_probe(wksq, psq, bksq, us))
     return VALUE_DRAW;
 
   Value result = VALUE_KNOWN_WIN + PawnValueEg + (Value)(rank_of(psq));
 
-  return strongSide == pos_stm() ? result : -result;
+  return strongSide == stm() ? result : -result;
 }
 
 
@@ -267,7 +268,7 @@ static Value EvaluateKRKP(const Pos *pos, unsigned strongSide)
 
   // If the weaker side's king is too far from the pawn and the rook,
   // it's a win.
-  else if (   distance(bksq, psq) >= 3 + (pos_stm() == weakSide)
+  else if (   distance(bksq, psq) >= 3 + (stm() == weakSide)
            && distance(bksq, rsq) >= 3)
     result = RookValueEg - distance(wksq, psq);
 
@@ -276,7 +277,7 @@ static Value EvaluateKRKP(const Pos *pos, unsigned strongSide)
   else if (   rank_of(bksq) <= RANK_3
            && distance(bksq, psq) == 1
            && rank_of(wksq) >= RANK_4
-           && distance(wksq, psq) > 2 + (pos_stm() == strongSide))
+           && distance(wksq, psq) > 2 + (stm() == strongSide))
     result = (Value)(80) - 8 * distance(wksq, psq);
 
   else
@@ -284,7 +285,7 @@ static Value EvaluateKRKP(const Pos *pos, unsigned strongSide)
                                   - distance(bksq, psq + SOUTH)
                                   - distance(psq, queeningSq));
 
-  return strongSide == pos_stm() ? result : -result;
+  return strongSide == stm() ? result : -result;
 }
 
 
@@ -298,7 +299,7 @@ static Value EvaluateKRKB(const Pos *pos, unsigned strongSide)
   assert(verify_material(pos, weakSide, BishopValueMg, 0));
 
   Value result = (Value)PushToEdges[square_of(weakSide, KING)];
-  return strongSide == pos_stm() ? result : -result;
+  return strongSide == stm() ? result : -result;
 }
 
 
@@ -314,7 +315,7 @@ static Value EvaluateKRKN(const Pos *pos, unsigned strongSide)
   Square bksq = square_of(weakSide, KING);
   Square bnsq = lsb(pieces_p(KNIGHT));
   Value result = (Value)PushToEdges[bksq] + PushAway[distance(bksq, bnsq)];
-  return strongSide == pos_stm() ? result : -result;
+  return strongSide == stm() ? result : -result;
 }
 
 
@@ -340,7 +341,7 @@ static Value EvaluateKQKP(const Pos *pos, unsigned strongSide)
       || !((FileABB | FileCBB | FileFBB | FileHBB) & sq_bb(pawnSq)))
     result += QueenValueEg - PawnValueEg;
 
-  return strongSide == pos_stm() ? result : -result;
+  return strongSide == stm() ? result : -result;
 }
 
 
@@ -364,7 +365,23 @@ static Value EvaluateKQKR(const Pos *pos, unsigned strongSide)
                 + PushToEdges[loserKSq]
                 + PushClose[distance(winnerKSq, loserKSq)];
 
-  return strongSide == pos_stm() ? result : -result;
+  return strongSide == stm() ? result : -result;
+}
+
+
+// KNN vs KP. Simply push the opposing king to the corner.
+static Value EvaluateKNNKP(const Pos *pos, unsigned strongSide)
+{
+  unsigned weakSide = strongSide ^ 1;
+
+  assert(verify_material(pos, strongSide, 2 * KnightValueMg, 0));
+  assert(verify_material(pos, weakSide, VALUE_ZERO, 1));
+
+  Value result =  2 * KnightValueEg
+                - PawnValueEg
+                + PushToEdges[square_of(weakSide, KING)];
+
+  return strongSide == stm() ? result : -result;
 }
 
 
@@ -386,7 +403,7 @@ int ScaleKBPsK(const Pos *pos, unsigned strongSide)
 {
   unsigned weakSide = strongSide ^ 1;
 
-  assert(pos_non_pawn_material(strongSide) == BishopValueMg);
+  assert(non_pawn_material_c(strongSide) == BishopValueMg);
   assert(pieces_cp(strongSide, PAWN));
 
   // No assertions about the material of weakSide, because we want draws to
@@ -411,7 +428,7 @@ int ScaleKBPsK(const Pos *pos, unsigned strongSide)
   // If all the pawns are on the same B or G file, then it's potentially a draw
   if (    (pawnsFile == FILE_B || pawnsFile == FILE_G)
       && !(pieces_p(PAWN) & ~file_bb(pawnsFile))
-      && pos_non_pawn_material(weakSide) == 0
+      && non_pawn_material_c(weakSide) == 0
       && piece_count(weakSide, PAWN)) {
 
     // Get weakSide pawn that is closest to the home rank
@@ -495,7 +512,7 @@ static int ScaleKRPKR(const Pos *pos, unsigned strongSide)
   File f = file_of(wpsq);
   Rank r = rank_of(wpsq);
   Square queeningSq = make_square(f, RANK_8);
-  signed tempo = (pos_stm() == strongSide);
+  signed tempo = (stm() == strongSide);
 
   // If the pawn is not too far advanced and the defending king defends
   // the queening square, use the third-rank defence.
@@ -658,7 +675,7 @@ static int ScaleKPsK(const Pos *pos, unsigned strongSide)
 {
   unsigned weakSide = strongSide ^ 1;
 
-  assert(pos_non_pawn_material(strongSide) == 0);
+  assert(non_pawn_material_c(strongSide) == 0);
   assert(piece_count(strongSide, PAWN) >= 2);
   assert(verify_material(pos, weakSide, VALUE_ZERO, 0));
 
@@ -861,7 +878,7 @@ static int ScaleKPKP(const Pos *pos, unsigned strongSide)
   Square bksq = normalize(pos, strongSide, square_of(weakSide, KING));
   Square psq  = normalize(pos, strongSide, square_of(strongSide, PAWN));
 
-  unsigned us = strongSide == pos_stm() ? WHITE : BLACK;
+  unsigned us = strongSide == stm() ? WHITE : BLACK;
 
   // If the pawn has advanced to the fifth rank or further, and is not a
   // rook pawn, it is too dangerous to assume that it is at least a draw.

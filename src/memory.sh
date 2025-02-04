@@ -30,7 +30,7 @@ EOF
 # 6144kb
 #expect memory.exp startpos 6 200
 
-expect memory.exp startpos 20 200
+expect memory.exp startpos 10 100
 
 #5632 block_size=2
 #5632 block_size=1

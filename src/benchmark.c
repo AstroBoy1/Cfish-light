@@ -63,6 +63,10 @@ static char *Defaults[] = {
   "1r3k2/4q3/2Pp3b/3Bp3/2Q2p2/1p1P2P1/1P2KP2/3N4 w - - 0 1",
   "6k1/4pp1p/3p2p1/P1pPb3/R7/1r2P1PP/3B1P2/6K1 w - - 0 1",
   "8/3p3B/5p2/5P2/p7/PP5b/k7/6K1 w - - 0 1",
+  "5rk1/q6p/2p3bR/1pPp1rP1/1P1Pp3/P3B1Q1/1K3P2/R7 w - - 93 90",
+  "4rrk1/1p1nq3/p7/2p1P1pp/3P2bp/3Q1Bn1/PPPB4/1K2R1NR w - - 40 21",
+  "r3k2r/3nnpbp/q2pp1p1/p7/Pp1PPPP1/4BNN1/1P5P/R2Q1RK1 w kq - 0 16",
+  "3Qb1k1/1r2ppb1/pN1n2q1/Pp1Pp1Pr/4P2p/4BP2/4B1R1/1R5K b - - 11 40",
 
   // 5-man positions
   "8/8/8/8/5kp1/P7/8/1K1N4 w - - 0 1",     // Kc2 - mate
@@ -160,8 +164,8 @@ void benchmark(Pos *current, char *str)
 
   uint64_t nodes = 0;
   Pos pos;
-  pos.stack = malloc(215 * sizeof(*pos.stack));
-  pos.st = pos.stack + 5;
+  pos.stack = malloc(217 * sizeof(*pos.stack));
+  pos.st = pos.stack + 7;
   pos.moveList = malloc(10000 * sizeof(*pos.moveList));
   TimePoint elapsed = now();
 
@@ -189,7 +193,7 @@ void benchmark(Pos *current, char *str)
     fprintf(stderr, "\nPosition: %d/%d\n", ++j, numFens - numOpts);
 
     if (strcmp(limitType, "perft") == 0)
-      nodes += perft(&pos, Limits.depth * ONE_PLY);
+      nodes += perft(&pos, Limits.depth);
     else {
       Limits.startTime = now();
       start_thinking(&pos);

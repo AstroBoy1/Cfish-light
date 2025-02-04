@@ -41,7 +41,7 @@ PGOBENCH = ./$(EXE) bench 16 1 15
 OBJS = benchmark.o bitbase.o bitboard.o endgame.o evaluate.o main.o \
 	material.o misc.o movegen.o movepick.o pawns.o position.o psqt.o \
 	search.o thread.o timeman.o tt.o uci.o ucioption.o \
-        settings.o
+        numa.o settings.o
 
 ### ==========================================================================
 ### Section 2. High-level Configuration
@@ -76,7 +76,7 @@ popcnt = yes
 sse = yes
 pext = no
 native = yes
-numa = no
+numa = yes
 lto = no
 extra = no
 
@@ -142,9 +142,9 @@ endif
 
 ifeq ($(ARCH),ppc-64)
 	arch = ppc64
-	prefetch = no
+	prefetch = yes
 	sse = no
-	popcnt = no
+	popcnt = yes
 endif
 
 
@@ -229,8 +229,8 @@ ifeq ($(COMP),clang)
 	endif
 
 	ifeq ($(KERNEL),Darwin)
-		CFLAGS += 
-		DEPENDFLAGS += 
+		CFLAGS +=
+		DEPENDFLAGS +=
 	endif
 endif
 
@@ -293,7 +293,7 @@ ifeq ($(optimize),yes)
 
 	ifeq ($(comp),$(filter $(comp),gcc mingw))
 		ifeq ($(extra),yes)
-			CFLAGS += -fira-loop-pressure -fconserve-stack -fmodulo-sched -fmodulo-sched-allow-regmoves -fsched-pressure -flimit-function-alignment
+			CFLAGS += -fira-loop-pressure -fconserve-stack -fmodulo-sched -fmodulo-sched-allow-regmoves -fsched-pressure -flimit-function-alignment -fno-tree-pre
 		endif
 
 		ifeq ($(OS),Android)
@@ -325,10 +325,14 @@ endif
 
 ### 3.6 popcnt
 ifeq ($(popcnt),yes)
+	ifeq ($(arch),ppc64)
+		CFLAGS += -DUSE_POPCNT
+	else
 	ifeq ($(comp),icc)
 		CFLAGS += -msse3 -DUSE_POPCNT
 	else
 		CFLAGS += -msse3 -mpopcnt -DUSE_POPCNT
+	endif
 	endif
 endif
 
@@ -336,7 +340,7 @@ endif
 ifeq ($(pext),yes)
 	CFLAGS += -DUSE_PEXT
 	ifeq ($(comp),$(filter $(comp),gcc clang mingw))
-		CFLAGS += -mbmi2
+		CFLAGS += -msse4 -mbmi2
 	endif
 endif
 

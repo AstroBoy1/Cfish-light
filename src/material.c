@@ -19,7 +19,7 @@
 */
 
 #include <assert.h>
-#include <string.h>   // For std::memset
+#include <string.h>   // For memset
 
 #include "material.h"
 #include "position.h"
@@ -52,20 +52,18 @@ static const int QuadraticTheirs[][8] = {
 static bool is_KXK(const Pos *pos, int us)
 {
   return  !more_than_one(pieces_c(us ^ 1))
-        && pos_non_pawn_material(us) >= RookValueMg;
+        && non_pawn_material_c(us) >= RookValueMg;
 }
 
 static bool is_KBPsK(const Pos *pos, int us)
 {
-  return   pos_non_pawn_material(us) == BishopValueMg
-        && pieces_cp(us, BISHOP)
+  return   non_pawn_material_c(us) == BishopValueMg
         && pieces_cp(us, PAWN);
 }
 
 static bool is_KQKRPs(const Pos *pos, int us) {
   return  !piece_count(us, PAWN)
-        && pos_non_pawn_material(us) == QueenValueMg
-        && pieces_cp(us, QUEEN)
+        && non_pawn_material_c(us) == QueenValueMg
         && piece_count(us ^ 1, ROOK) == 1
         && pieces_cp(us ^ 1, PAWN);
 }
@@ -109,11 +107,8 @@ void material_entry_fill(const Pos *pos, MaterialEntry *e, Key key)
   e->key = key;
   e->factor[WHITE] = e->factor[BLACK] = (uint8_t)SCALE_FACTOR_NORMAL;
 
-  Value npm = pos_non_pawn_material(WHITE) + pos_non_pawn_material(BLACK);
-  if (npm > MidgameLimit)
-      npm = MidgameLimit;
-  if (npm < EndgameLimit)
-      npm = EndgameLimit;
+  Value npm = non_pawn_material();
+  npm = clamp(npm, EndgameLimit, MidgameLimit);
   e->gamePhase = ((npm - EndgameLimit) * PHASE_MIDGAME) / (MidgameLimit - EndgameLimit);
 
   // Look for a specialized evaluation function.
@@ -127,7 +122,7 @@ void material_entry_fill(const Pos *pos, MaterialEntry *e, Key key)
 
   for (int c = 0; c < 2; c++)
     if (is_KXK(pos, c)) {
-      e->eval_func = 9; // EvaluateKXK
+      e->eval_func = 10; // EvaluateKXK
       e->eval_func_side = c;
       return;
     }
@@ -136,7 +131,7 @@ void material_entry_fill(const Pos *pos, MaterialEntry *e, Key key)
   for (int i = 0; i < NUM_SCALING; i++)
     for (int c = 0; c < 2; c++)
       if (endgame_keys[NUM_EVAL + i][c] == key) {
-        e->scal_func[c] = 10 + i;
+        e->scal_func[c] = 11 + i;
         return;
       }
 
@@ -145,31 +140,31 @@ void material_entry_fill(const Pos *pos, MaterialEntry *e, Key key)
   // that in this case we do not return after setting the function.
   for (int c = 0; c < 2; c++) {
     if (is_KBPsK(pos, c))
-      e->scal_func[c] = 18; // ScaleKBPsK
+      e->scal_func[c] = 19; // ScaleKBPsK
 
     else if (is_KQKRPs(pos, c))
-      e->scal_func[c] = 19; // ScaleKQKRPs
+      e->scal_func[c] = 20; // ScaleKQKRPs
   }
 
-  Value npm_w = pos_non_pawn_material(WHITE);
-  Value npm_b = pos_non_pawn_material(BLACK);
+  Value npm_w = non_pawn_material_c(WHITE);
+  Value npm_b = non_pawn_material_c(BLACK);
 
   if (npm_w + npm_b == 0 && pieces_p(PAWN)) { // Only pawns on the board.
     if (!pieces_cp(BLACK, PAWN)) {
       assert(piece_count(WHITE, PAWN) >= 2);
 
-      e->scal_func[WHITE] = 20; // ScaleKPsK
+      e->scal_func[WHITE] = 21; // ScaleKPsK
     }
     else if (!pieces_cp(WHITE, PAWN)) {
       assert(piece_count(BLACK, PAWN) >= 2);
 
-      e->scal_func[BLACK] = 20; // ScaleKPsK
+      e->scal_func[BLACK] = 21; // ScaleKPsK
     }
     else if (popcount(pieces_p(PAWN)) == 2) { // Each side has one pawn.
       // This is a special case because we set scaling functions
       // for both colors instead of only one.
-      e->scal_func[WHITE] = 21; // ScaleKPKP
-      e->scal_func[BLACK] = 21; // ScaleKPKP
+      e->scal_func[WHITE] = 22; // ScaleKPKP
+      e->scal_func[BLACK] = 22; // ScaleKPKP
     }
   }
 

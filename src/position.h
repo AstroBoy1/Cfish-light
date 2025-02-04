@@ -154,6 +154,7 @@ struct Pos {
   Stack *stack;
   uint64_t nodes;
   uint64_t tbHits;
+  uint64_t ttHitAverage;
   int pvIdx, pvLast;
   int selDepth, nmpPly, nmpOdd;
   Depth rootDepth;
@@ -169,6 +170,7 @@ struct Pos {
   CounterMoveHistoryStat *counterMoveHistory;
 
   // Thread-control data.
+  uint64_t bestMoveChanges;
   atomic_bool resetCalls;
   int callsCnt;
   int action;
@@ -188,7 +190,7 @@ void pos_set(Pos *pos, char *fen, int isChess960);
 void pos_fen(const Pos *pos, char *fen);
 //void print_pos(Pos *pos);
 
-//PURE Bitboard pos_attackers_to_occ(const Pos *pos, Square s, Bitboard occupied);
+//PURE Bitboard attackers_to_occ(const Pos *pos, Square s, Bitboard occupied);
 PURE Bitboard slider_blockers(const Pos *pos, Bitboard sliders, Square s,
                               Bitboard *pinners);
 
@@ -208,7 +210,7 @@ PURE Value see_test(const Pos *pos, Move m, int value);
 
 PURE Key key_after(const Pos *pos, Move m);
 PURE int is_draw(const Pos *pos);
-PURE bool has_game_cycle(const Pos *pos);
+PURE bool has_game_cycle(const Pos *pos, int ply);
 
 // Position representation
 #define pieces() (pos->byTypeBB[0])
@@ -234,7 +236,7 @@ PURE bool has_game_cycle(const Pos *pos);
   Bitboard pcs = pieces_cp(c,p); \
   while (pcs && (s = pop_lsb(&pcs), 1))
 #endif
-#define piece_count_mk(c, p) (((pos_material_key()) >> (20 * (c) + 4 * (p) + 4)) & 15)
+#define piece_count_mk(c, p) (((material_key()) >> (20 * (c) + 4 * (p) + 4)) & 15)
 
 // Castling
 #define can_castle_cr(cr) (pos->st->castlingRights & (cr))
@@ -249,11 +251,10 @@ PURE bool has_game_cycle(const Pos *pos);
 #endif
 
 // Checking
-#define pos_checkers() (pos->st->checkersBB)
+#define checkers() (pos->st->checkersBB)
 
 // Attacks to/from a given square
-#define attackers_to_occ(s,occ) pos_attackers_to_occ(pos,s,occ)
-#define attackers_to(s) attackers_to_occ(s,pieces())
+#define attackers_to(s) attackers_to_occ(pos,s,pieces())
 #define attacks_from_pawn(s,c) (PawnAttacks[c][s])
 #define attacks_from_knight(s) (PseudoAttacks[KNIGHT][s])
 #define attacks_from_bishop(s) attacks_bb_bishop(s, pieces())
@@ -267,34 +268,40 @@ PURE bool has_game_cycle(const Pos *pos);
 #define captured_piece() (pos->st->capturedPiece)
 
 // Accessing hash keys
-#define pos_key() (pos->st->key)
-#define pos_material_key() (pos->st->materialKey)
-#define pos_pawn_key() (pos->st->pawnKey)
+#define key() (pos->st->key)
+#define material_key() (pos->st->materialKey)
+#define pawn_key() (pos->st->pawnKey)
 
 // Other properties of the position
-#define pos_stm() (pos->sideToMove)
-#define pos_game_ply() (pos->gamePly)
+#define stm() (pos->sideToMove)
+#define game_ply() (pos->gamePly)
 #define is_chess960() (pos->chess960)
-#define pos_nodes_searched() (pos->nodes)
-#define pos_rule50_count() (pos->st->rule50)
-#define pos_psq_score() (pos->st->psq)
-#define pos_non_pawn_material(c) (pos->st->nonPawnMaterial[c])
-#define pos_pawns_only() (!pos->st->nonPawn)
+#define nodes_searched() (pos->nodes)
+#define rule50_count() (pos->st->rule50)
+#define psq_score() (pos->st->psq)
+#define non_pawn_material_c(c) (pos->st->nonPawnMaterial[c])
+#define non_pawn_material() (non_pawn_material_c(WHITE) + non_pawn_material_c(BLACK))
+#define pawns_only() (!pos->st->nonPawn)
 
 INLINE Bitboard blockers_for_king(const Pos *pos, uint32_t c)
 {
   return pos->st->blockersForKing[c];
 }
 
+INLINE bool is_discovery_check_on_king(const Pos *pos, uint32_t c, Move m)
+{
+  return pos->st->blockersForKing[c] & sq_bb(from_sq(m));
+}
+
 INLINE int pawn_passed(const Pos *pos, uint32_t c, Square s)
 {
-  return !(pieces_cp(c ^ 1, PAWN) & passed_pawn_mask(c, s));
+  return !(pieces_cp(c ^ 1, PAWN) & passed_pawn_span(c, s));
 }
 
 INLINE int advanced_pawn_push(const Pos *pos, Move m)
 {
   return   type_of_p(moved_piece(m)) == PAWN
-        && relative_rank_s(pos_stm(), from_sq(m)) > RANK_4;
+        && relative_rank_s(stm(), from_sq(m)) > RANK_4;
 }
 
 INLINE int opposite_bishops(const Pos *pos)
@@ -304,7 +311,7 @@ INLINE int opposite_bishops(const Pos *pos)
         && piece_count(BLACK, BISHOP) == 1
         && opposite_colors(square_of(WHITE, BISHOP), square_of(BLACK, BISHOP));
 #elif 0
-  return   (pos_material_key() & 0xf0000f0000) == 0x1000010000
+  return   (material_key() & 0xf0000f0000) == 0x1000010000
         && (pieces_p(BISHOP) & DarkSquares)
         && (pieces_p(BISHOP) & DarkSquares) != pieces_p(BISHOP);
 #else
@@ -315,7 +322,7 @@ INLINE int opposite_bishops(const Pos *pos)
 #endif
 }
 
-INLINE int is_capture_or_promotion(const Pos *pos, Move m)
+INLINE bool is_capture_or_promotion(const Pos *pos, Move m)
 {
   assert(move_is_ok(m));
   return type_of_m(m) != NORMAL ? type_of_m(m) != CASTLING : !is_empty(to_sq(m));
@@ -330,7 +337,7 @@ INLINE int is_capture(const Pos *pos, Move m)
 
 INLINE int gives_check(const Pos *pos, Stack *st, Move m)
 {
-  return  type_of_m(m) == NORMAL && !(blockers_for_king(pos, pos_stm() ^ 1) & pieces_c(pos_stm()))
+  return  type_of_m(m) == NORMAL && !(blockers_for_king(pos, stm() ^ 1) & pieces_c(stm()))
         ? !!(st->checkSquares[type_of_p(moved_piece(m))] & sq_bb(to_sq(m)))
         : gives_check_special(pos, st, m);
 }
@@ -341,7 +348,7 @@ void pos_set_check_info(Pos *pos);
 
 INLINE void undo_null_move(Pos *pos)
 {
-  assert(!pos_checkers());
+  assert(!checkers());
 
   pos->st--;
   pos->sideToMove ^= 1;
@@ -383,8 +390,7 @@ INLINE Bitboard slider_blockers(const Pos *pos, Bitboard sliders, Square s,
 // attackers_to() computes a bitboard of all pieces which attack a given
 // square. Slider attacks use the occupied bitboard to indicate occupancy.
 
-INLINE Bitboard pos_attackers_to_occ(const Pos *pos, Square s,
-                                     Bitboard occupied)
+INLINE Bitboard attackers_to_occ(const Pos *pos, Square s, Bitboard occupied)
 {
   return  (attacks_from_pawn(s, BLACK)    & pieces_cp(WHITE, PAWN))
         | (attacks_from_pawn(s, WHITE)    & pieces_cp(BLACK, PAWN))

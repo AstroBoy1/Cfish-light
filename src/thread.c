@@ -60,7 +60,6 @@ static THREAD_FUNC thread_init(void *arg)
   if (node >= numCmhTables) {
     int old = numCmhTables;
     numCmhTables = node + 16;
-    //numCmhTables = node + 1;
     cmhTables = realloc(cmhTables,
         numCmhTables * sizeof(CounterMoveHistoryStat *));
     while (old < numCmhTables)
@@ -71,9 +70,11 @@ static THREAD_FUNC thread_init(void *arg)
       cmhTables[node] = numa_alloc(sizeof(CounterMoveHistoryStat));
     else
       cmhTables[node] = calloc(sizeof(CounterMoveHistoryStat), 1);
-    for (int j = 0; j < 16; j++)
-      for (int k = 0; k < 64; k++)
-        (*cmhTables[node])[0][0][j][k] = CounterMovePruneThreshold - 1;
+    for (int chk = 0; chk < 2; chk++)
+      for (int c = 0; c < 2; c++)
+        for (int j = 0; j < 16; j++)
+          for (int k = 0; k < 64; k++)
+            (*cmhTables[node])[chk][c][0][0][j][k] = CounterMovePruneThreshold - 1;
   }
 
   Pos *pos;
@@ -102,7 +103,7 @@ static THREAD_FUNC thread_init(void *arg)
   pos->threadIdx = idx;
   pos->counterMoveHistory = cmhTables[node];
 
-  atomic_store(&pos->resetCalls, 0);
+  atomic_store(&pos->resetCalls, false);
   pos->selDepth = pos->callsCnt = 0;
 
 #ifndef _WIN32  // linux
@@ -391,6 +392,8 @@ void threads_set_number(int num)
 
   while (Threads.numThreads > num)
     thread_destroy(Threads.pos[--Threads.numThreads]);
+
+  search_init();
 
   if (num == 0 && numCmhTables > 0) {
     for (int i = 0; i < numCmhTables; i++)

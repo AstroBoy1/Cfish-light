@@ -58,13 +58,12 @@ extern uint8_t SquareDistance[64][64];
 extern Bitboard SquareBB[64];
 extern Bitboard FileBB[8];
 extern Bitboard RankBB[8];
-extern Bitboard AdjacentFilesBB[8];
 extern Bitboard ForwardRanksBB[2][8];
 extern Bitboard BetweenBB[64][64];
 extern Bitboard LineBB[64][64];
 extern Bitboard DistanceRingBB[64][8];
 extern Bitboard ForwardFileBB[2][64];
-extern Bitboard PassedPawnMask[2][64];
+extern Bitboard PassedPawnSpan[2][64];
 extern Bitboard PawnAttackSpan[2][64];
 extern Bitboard PseudoAttacks[8][64];
 extern Bitboard PawnAttacks[2][64];
@@ -134,15 +133,37 @@ INLINE Bitboard file_bb_s(Square s)
 // shift_bb() moves a bitboard one step along direction Direction.
 INLINE Bitboard shift_bb(int Direction, Bitboard b)
 {
-  return  Direction == NORTH  ?  b  << 8
-        : Direction == SOUTH  ?  b  >> 8
-        : Direction == EAST   ? (b & ~FileHBB) << 1
-        : Direction == WEST   ? (b & ~FileABB) >> 1
-        : Direction == NORTH_EAST ? (b & ~FileHBB) << 9
-        : Direction == SOUTH_EAST ? (b & ~FileHBB) >> 7
-        : Direction == NORTH_WEST ? (b & ~FileABB) << 7
-        : Direction == SOUTH_WEST ? (b & ~FileABB) >> 9
+  return  Direction == NORTH       ?  b << 8
+        : Direction == SOUTH       ?  b >> 8
+        : Direction == NORTH+NORTH ?  b << 16
+        : Direction == SOUTH+SOUTH ?  b >> 16
+        : Direction == EAST        ? (b & ~FileHBB) << 1
+        : Direction == WEST        ? (b & ~FileABB) >> 1
+        : Direction == NORTH_EAST  ? (b & ~FileHBB) << 9
+        : Direction == SOUTH_EAST  ? (b & ~FileHBB) >> 7
+        : Direction == NORTH_WEST  ? (b & ~FileABB) << 7
+        : Direction == SOUTH_WEST  ? (b & ~FileABB) >> 9
         : 0;
+}
+
+
+// pawn_attacks_bb() returns the squares attacked by pawns of the given color
+// from the squares in the given bitboard.
+
+INLINE Bitboard pawn_attacks_bb(Bitboard b, const int C)
+{
+  return C == WHITE ? shift_bb(NORTH_WEST, b) | shift_bb(NORTH_EAST, b)
+                    : shift_bb(SOUTH_WEST, b) | shift_bb(SOUTH_EAST, b);
+}
+
+
+// pawn_double_attacks_bb() returns the pawn attacks for the given color
+// from the squares in the given bitboard.
+
+INLINE Bitboard pawn_double_attacks_bb(Bitboard b, const int C)
+{
+  return C == WHITE ? shift_bb(NORTH_WEST, b) & shift_bb(NORTH_EAST, b)
+                    : shift_bb(SOUTH_WEST, b) & shift_bb(SOUTH_EAST, b);
 }
 
 
@@ -151,7 +172,7 @@ INLINE Bitboard shift_bb(int Direction, Bitboard b)
 
 INLINE Bitboard adjacent_files_bb(unsigned f)
 {
-  return AdjacentFilesBB[f];
+  return shift_bb(EAST, FileBB[f]) | shift_bb(WEST, FileBB[f]);
 }
 
 
@@ -199,13 +220,13 @@ INLINE Bitboard pawn_attack_span(unsigned c, Square s)
 }
 
 
-// passed_pawn_mask() returns a bitboard mask which can be used to test
+// passed_pawn_span() returns a bitboard mask which can be used to test
 // if a pawn of the given color and on the given square is a passed pawn:
-//     PassedPawnMask[c][s] = pawn_attack_span(c, s) | forward_bb(c, s)
+//     PassedPawnSpan[c][s] = pawn_attack_span(c, s) | forward_bb(c, s)
 
-INLINE Bitboard passed_pawn_mask(unsigned c, Square s)
+INLINE Bitboard passed_pawn_span(unsigned c, Square s)
 {
-  return PassedPawnMask[c][s];
+  return PassedPawnSpan[c][s];
 }
 
 
@@ -238,6 +259,8 @@ INLINE unsigned distance_r(Square x, Square y)
   return r1 < r2 ? r2 - r1 : r1 - r2;
 }
 
+#define attacks_bb_queen(s, occupied) (attacks_bb_bishop((s), (occupied)) | attacks_bb_rook((s), (occupied)))
+
 #if defined(MAGIC_FANCY)
 #include "magic-fancy.h"
 #elif defined(MAGIC_PLAIN)
@@ -248,6 +271,8 @@ INLINE unsigned distance_r(Square x, Square y)
 #include "bmi2-fancy.h"
 #elif defined(BMI2_PLAIN)
 #include "bmi2-plain.h"
+#elif defined(AVX2_BITBOARD)
+#include "avx2-bitboard.h"
 #endif
 
 INLINE Bitboard attacks_bb(int pt, Square s, Bitboard occupied)
@@ -260,7 +285,7 @@ INLINE Bitboard attacks_bb(int pt, Square s, Bitboard occupied)
   case ROOK:
       return attacks_bb_rook(s, occupied);
   case QUEEN:
-      return attacks_bb_bishop(s, occupied) | attacks_bb_rook(s, occupied);
+      return attacks_bb_queen(s, occupied);
   default:
       return PseudoAttacks[pt][s];
   }

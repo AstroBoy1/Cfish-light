@@ -70,8 +70,8 @@ static void score_captures(const Pos *pos)
   // preferring captures near our with a good history.
 
   for (ExtMove *m = st->cur; m < st->endMoves; m++)
-    m->value =  PieceValue[MG][piece_on(to_sq(m->move))]
-              + (*history)[moved_piece(m->move)][to_sq(m->move)][type_of_p(piece_on(to_sq(m->move)))] / 8;
+    m->value =  PieceValue[MG][piece_on(to_sq(m->move))] * 6
+              + (*history)[moved_piece(m->move)][to_sq(m->move)][type_of_p(piece_on(to_sq(m->move)))];
 }
 
 SMALL
@@ -83,17 +83,19 @@ static void score_quiets(const Pos *pos)
   PieceToHistory *cmh = (st-1)->history;
   PieceToHistory *fmh = (st-2)->history;
   PieceToHistory *fmh2 = (st-4)->history;
+  PieceToHistory *fmh3 = (st-6)->history;
 
-  Color c = pos_stm();
+  Color c = stm();
 
   for (ExtMove *m = st->cur; m < st->endMoves; m++) {
     uint32_t move = m->move & 4095;
     Square to = move & 63;
     Square from = move >> 6;
-    m->value =  (*cmh)[piece_on(from)][to]
-              + (*fmh)[piece_on(from)][to]
-              + (*fmh2)[piece_on(from)][to]
-              + (*history)[c][move];
+    m->value =      (*history)[c][move]
+              + 2 * (*cmh)[piece_on(from)][to]
+              + 2 * (*fmh)[piece_on(from)][to]
+              + 2 * (*fmh2)[piece_on(from)][to]
+              +     (*fmh3)[piece_on(from)][to];
   }
 }
 
@@ -105,7 +107,7 @@ static void score_evasions(const Pos *pos)
 
   ButterflyHistory *history = pos->history;
   PieceToHistory *cmh = (st-1)->history;
-  Color c = pos_stm();
+  Color c = stm();
 
   for (ExtMove *m = st->cur; m < st->endMoves; m++)
     if (is_capture(pos, m->move))
@@ -120,7 +122,7 @@ static void score_evasions(const Pos *pos)
 
 // next_move() returns the next pseudo-legal move to be searched.
 
-Move next_move(const Pos *pos, int skipQuiets)
+Move next_move(const Pos *pos, bool skipQuiets)
 {
   Stack *st = pos->st;
   Move move;
@@ -177,10 +179,12 @@ Move next_move(const Pos *pos, int skipQuiets)
     /* fallthrough */
 
   case ST_QUIET_INIT:
-    st->cur = st->endBadCaptures;
-    st->endMoves = generate_quiets(pos, st->cur);
-    score_quiets(pos);
-    partial_insertion_sort(st->cur, st->endMoves, -4000 * st->depth / ONE_PLY);
+    if (!skipQuiets) {
+      st->cur = st->endBadCaptures;
+      st->endMoves = generate_quiets(pos, st->cur);
+      score_quiets(pos);
+      partial_insertion_sort(st->cur, st->endMoves, -3000 * st->depth);
+    }
     st->stage++;
     /* fallthrough */
 
