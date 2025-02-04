@@ -31,14 +31,14 @@
 #include "uci.h"
 #include "tbprobe.h"
 
-// #include <sys/resource.h>
-// #include <sys/time.h>
+#include <sys/resource.h>
+#include <sys/time.h>
 
-// void print_memory_usage(const char *step) {
-//     struct rusage usage;
-//     getrusage(RUSAGE_SELF, &usage);
-//     printf("Memory usage after %s: %ld KB\n", step, usage.ru_maxrss);
-// }
+void print_memory_usage(const char *step) {
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    printf("Memory usage after %s: %ld KB\n", step, usage.ru_maxrss);
+}
 
 int main(int argc, char **argv) {
     //print_engine_info(0);
@@ -73,10 +73,11 @@ int main(int argc, char **argv) {
     //print_memory_usage("options_init");
 
     search_clear();
-    //print_memory_usage("search_clear");
+    print_memory_usage("search_clear");
 
     uci_loop(argc, argv);
 
+    print_memory_usage("uci_loop");
     threads_exit();
     //print_memory_usage("threads_exit");
 
