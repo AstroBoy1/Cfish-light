@@ -40,6 +40,40 @@
 #define load_rlx(x) atomic_load_explicit(&(x), memory_order_relaxed)
 #define store_rlx(x,y) atomic_store_explicit(&(x), y, memory_order_relaxed)
 
+#include <sys/resource.h>
+#include <sys/time.h>
+ 
+void print_memory_usage(const char *step) {
+    struct rusage usage;
+    getrusage(RUSAGE_SELF, &usage);
+    printf("Memory usage after %s: %ld KB\n", step, usage.ru_maxrss);
+}
+
+long memory_usage() {
+    struct rusage usage;
+    if (getrusage(RUSAGE_SELF, &usage) != 0) {
+        perror("getrusage failed");
+        return false;
+    }
+
+    long mem_usage_kb = usage.ru_maxrss;
+
+    // On macOS/BSD, ru_maxrss is in bytes, convert to KB
+    // #ifdef __APPLE__
+    //     mem_usage_kb /= 1024;
+    // #endif
+
+    //printf("Memory usage: %ld KB\n", mem_usage_kb);
+
+    //bool exceed = mem_usage_kb > 4500;
+    //printf("Memory usage: %s\n", exceed ? "exceed" : "not exceed");
+
+    //5Mib = 5120Kib
+    //4.5Mib = 4608Kib
+
+    return mem_usage_kb; 
+}
+
 SignalsType Signals;
 LimitsType Limits;
 
@@ -411,7 +445,7 @@ void thread_search(Pos *pos)
 
   // Iterative deepening loop until requested to stop or the target depth
   // is reached.
-  while (   (pos->rootDepth += ONE_PLY) < DEPTH_MAX
+  while (   memory_usage() < 5000 && (pos->rootDepth += ONE_PLY) < DEPTH_MAX
          && !Signals.stop
          && !(   Limits.depth
               && pos->threadIdx == 0

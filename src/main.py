@@ -6,7 +6,7 @@ process = Popen(["/kaggle_simulations/agent/cfish"], stdin=PIPE, stdout=PIPE, te
 
 def cfish(obs):
     process.stdin.write(f"position fen {obs.board}\n")
-    process.stdin.write("go depth 10 movetime 100\n")
+    process.stdin.write("go movetime 200\n")
     process.stdin.flush()
     while True:
         line = process.stdout.readline().strip().split()
