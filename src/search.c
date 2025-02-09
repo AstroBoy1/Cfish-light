@@ -427,7 +427,7 @@ void thread_search(Pos *pos)
 
   // Iterative deepening loop until requested to stop or the target depth
   // is reached.
-  while (   memory_usage() < 5000 && (pos->rootDepth += ONE_PLY) < DEPTH_MAX
+  while (   memory_usage() < 6000 && (pos->rootDepth += ONE_PLY) < DEPTH_MAX
          && !Signals.stop
          && !(   Limits.depth
               && pos->threadIdx == 0
