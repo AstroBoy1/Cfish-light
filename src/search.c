@@ -41,13 +41,8 @@
 #define store_rlx(x,y) atomic_store_explicit(&(x), y, memory_order_relaxed)
 
 #include <sys/resource.h>
-#include <sys/time.h>
- 
-void print_memory_usage(const char *step) {
-    struct rusage usage;
-    getrusage(RUSAGE_SELF, &usage);
-    printf("Memory usage after %s: %ld KB\n", step, usage.ru_maxrss);
-}
+//#include <sys/time.h>
+
 
 long memory_usage() {
     struct rusage usage;
@@ -57,19 +52,6 @@ long memory_usage() {
     }
 
     long mem_usage_kb = usage.ru_maxrss;
-
-    // On macOS/BSD, ru_maxrss is in bytes, convert to KB
-    // #ifdef __APPLE__
-    //     mem_usage_kb /= 1024;
-    // #endif
-
-    //printf("Memory usage: %ld KB\n", mem_usage_kb);
-
-    //bool exceed = mem_usage_kb > 4500;
-    //printf("Memory usage: %s\n", exceed ? "exceed" : "not exceed");
-
-    //5Mib = 5120Kib
-    //4.5Mib = 4608Kib
 
     return mem_usage_kb; 
 }

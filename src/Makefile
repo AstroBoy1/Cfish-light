@@ -289,7 +289,7 @@ endif
 ### 3.3 Optimization
 ifeq ($(optimize),yes)
 
-	CFLAGS += -O1
+	CFLAGS += -O3
 
 	ifeq ($(comp),$(filter $(comp),gcc mingw))
 		ifeq ($(extra),yes)

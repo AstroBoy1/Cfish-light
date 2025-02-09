@@ -60,19 +60,19 @@ void tt_allocate(size_t mbSize)
 #ifdef BIG_TT
   size_t count = ((size_t)1) << msb((mbSize * 1024 * 1024) / sizeof(Cluster));
 #else
-  printf("sizeof(Cluster) = %zu\n", sizeof(Cluster));
+  //printf("sizeof(Cluster) = %zu\n", sizeof(Cluster));
 
   size_t count = mbSize * 1024 * 1024 / sizeof(Cluster);
   // set size very small
-  count = mbSize * 1024 / sizeof(Cluster); 
-  printf("count = %zu\n", count);
+  count = mbSize * 1024 * 128/ sizeof(Cluster); 
+  //printf("count = %zu\n", count);
 #endif
 
   TT.mask = count - 1;
   TT.clusterCount = count;
 
   size_t size = count * sizeof(Cluster);
-  printf("size = %zu\n", size);
+  //printf("size = %zu\n", size);
 
 #ifdef _WIN32
 
